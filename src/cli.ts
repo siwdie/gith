@@ -1,16 +1,18 @@
 import { Command } from 'commander'
 
+import { createInitCommand } from '~/commands/init.command.js'
 import { createBranchCommandGroup } from '~/groups/branch.group.js'
 
 
 
-const program = new Command()
+const cli = new Command()
 
-program
+cli
   .name('gith')
   .description('Git workflow helper cli')
   .version('0.1.0')
 
-program.addCommand(createBranchCommandGroup())
+cli.addCommand(createBranchCommandGroup())
+cli.addCommand(createInitCommand())
 
-await program.parseAsync()
+await cli.parseAsync()
