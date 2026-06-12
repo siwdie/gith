@@ -1,6 +1,6 @@
 {
   "name": "gith",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Configurable git workflow cli with branch creation, rebase and squash helpers",
   "license": "MIT",
   "packageManager": "pnpm@11.5.1",
