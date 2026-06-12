@@ -8,15 +8,17 @@ import {
 } from '@clack/prompts'
 import { Command } from 'commander'
 
+import type { GithConfig } from '~/config/config.types.js'
 import type { ResultType } from '~/utils/result.js'
 
+import { loadConfig } from '~/config/config-loader.js'
 import { createDataResult, createErrorResult } from '~/utils/result.js'
 import { isValidBranchNamePart, normalizeBranchNamePart } from '~utils/branch/naming.js'
 import { createBranch, getCurrentBranchName, isInsideGitRepository } from '~utils/git.js'
 
 
 
-export type BranchType = 'feature' | 'bugfix'
+export type BranchType = GithConfig['branchTypes'][number]['value']
 
 export function createBranchCreateCommand (): Command {
   const command = new Command('create')
@@ -24,6 +26,15 @@ export function createBranchCreateCommand (): Command {
   command
     .description('Create a branch interactively')
     .action(async () => {
+      const configResult = await loadConfig()
+
+      if (configResult.error) {
+        cancel(configResult.error.message)
+        process.exit(1)
+      }
+
+      const config = configResult.data
+
       intro('Create branch')
 
       const repositoryResult = await isInsideGitRepository()
@@ -53,18 +64,7 @@ export function createBranchCreateCommand (): Command {
 
       const branchTypeValue = await select({
         message: 'Select the branch type',
-        options: [
-          {
-            value: 'feature',
-            label: 'feature',
-            hint: 'For new functionality',
-          },
-          {
-            value: 'bugfix',
-            label: 'bugfix',
-            hint: 'For fixing issues',
-          },
-        ],
+        options: config.branchTypes,
       })
 
       if (isCancel(branchTypeValue)) {
@@ -74,7 +74,7 @@ export function createBranchCreateCommand (): Command {
         return
       }
 
-      const branchTypeResult = parseBranchType(branchTypeValue)
+      const branchTypeResult = parseBranchType(config, branchTypeValue)
 
       if (branchTypeResult.error) {
         cancel(branchTypeResult.error.message)
@@ -156,10 +156,15 @@ function createBranchName (
   return createDataResult(`${branchType}/${normalizedBranchName}`)
 }
 
-function parseBranchType (type: string): ResultType<BranchType> {
-  if (type === 'feature' || type === 'bugfix') {
-    return createDataResult(type)
+function parseBranchType (
+  config: GithConfig,
+  type: string,
+): ResultType<BranchType> {
+  const branchType = config.branchTypes.find((item) => item.value === type)
+
+  if (!branchType) {
+    return createErrorResult(new Error('Invalid branch type'))
   }
 
-  return createErrorResult(new Error('Branch type must be "feature" or "bugfix"'))
+  return createDataResult(branchType.value)
 }

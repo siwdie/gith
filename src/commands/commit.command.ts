@@ -9,7 +9,7 @@ import {
 } from '@clack/prompts'
 import { Command } from 'commander'
 
-import { COMMIT_TYPES } from '~/constants/commit.js'
+import { loadConfig } from '~/config/config-loader.js'
 import { isPromptValue } from '~/guards/prompt.js'
 import { commitWithMessage, hasStagedChanges, stageAllTrackedFiles } from '~utils/git.js'
 
@@ -26,6 +26,15 @@ export function createBranchCommitCommand (): Command {
     .description('Create a conventional commit for the current branch')
     .option('--all', 'Stage all tracked changes before committing')
     .action(async (options: BranchCommitCommandOptions) => {
+      const configResult = await loadConfig()
+
+      if (configResult.error) {
+        cancel(configResult.error.message)
+        process.exit(1)
+      }
+
+      const config = configResult.data
+
       intro('Create branch commit')
 
       if (!options.all) {
@@ -44,7 +53,7 @@ export function createBranchCommitCommand (): Command {
 
       const type = await select({
         message: 'Select the commit type',
-        options: COMMIT_TYPES,
+        options: config.commitTypes,
       })
 
       if (!isPromptValue(type)) {
@@ -100,6 +109,7 @@ export function createBranchCommitCommand (): Command {
           : `Use this commit message?\n\n${header}`,
         initialValue: true,
       })
+
       if (!isPromptValue(shouldCommit)) {
         cancelCommand()
       }
@@ -120,7 +130,7 @@ export function createBranchCommitCommand (): Command {
 
       const commitResult = await commitWithMessage(
         header,
-        normalizedBody ?? undefined,
+        normalizedBody || undefined,
       )
 
       if (commitResult.error !== null) {

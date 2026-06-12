@@ -7,6 +7,7 @@ import {
 } from '@clack/prompts'
 import { Command } from 'commander'
 
+import { loadConfig } from '~/config/config-loader.js'
 import { isPromptValue } from '~/guards/prompt.js'
 import {
   commitWithMessage,
@@ -23,13 +24,21 @@ export function createBranchSquashCommand (): Command {
 
   command
     .description('Squash branch commits into a single commit')
-    .option('--base <branch>', 'Base branch to compare against', 'main')
+    .option('--base <branch>', 'Base branch to compare against')
     .action(async (options: { base?: string }) => {
-      const baseBranch = options.base ?? 'main'
+      const configResult = await loadConfig()
+
+      if (configResult.error) {
+        cancel(configResult.error.message)
+        process.exit(1)
+      }
+
+      const config = configResult.data
+      const baseBranch = options.base ?? config.defaultBranch
 
       const cleanResult = await hasPendingChanges()
 
-      if (cleanResult.error ?? !cleanResult.data) {
+      if (cleanResult.error ?? cleanResult.data) {
         cancel(cleanResult.error?.message ?? 'Pending changes detected. Commit, stash, or discard them before continuing.')
         process.exit(1)
       }
