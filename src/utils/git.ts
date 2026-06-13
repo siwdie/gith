@@ -147,3 +147,40 @@ export async function hasStagedChanges (
   return createErrorResult(new Error(message))
 }
 
+
+type GitCommitEntry = {
+  hash: string
+  shortHash: string
+  subject: string
+}
+
+export async function getCommitsSince (
+  targetBranch: string,
+  options?: RunGitOptions,
+): Promise<ResultType<Array<GitCommitEntry>>> {
+  const result = await runGit([
+    'log',
+    '--reverse',
+    '--pretty=format:%H\t%h\t%s',
+    `${targetBranch}..HEAD`,
+  ], options)
+
+  if (result.error !== null || !result.data) {
+    return createErrorResult(result.error ?? new Error('No commits found'))
+  }
+
+  const commits = result.data
+    .split('\n')
+    .filter(Boolean)
+    .map((line) => {
+      const [hash = '', shortHash = '', subject = ''] = line.split('\t')
+
+      return {
+        hash,
+        shortHash,
+        subject,
+      }
+    })
+
+  return createDataResult(commits)
+}

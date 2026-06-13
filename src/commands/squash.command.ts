@@ -2,7 +2,9 @@ import {
   cancel,
   confirm,
   intro,
+  note,
   outro,
+  select,
   text,
 } from '@clack/prompts'
 import { Command } from 'commander'
@@ -11,7 +13,7 @@ import { loadConfig } from '~/config/config-loader.js'
 import { isPromptValue } from '~/guards/prompt.js'
 import {
   commitWithMessage,
-  countCommitsSince,
+  getCommitsSince,
   getCurrentBranchName,
   hasPendingChanges,
   softResetTo,
@@ -23,7 +25,7 @@ export function createBranchSquashCommand (): Command {
   const command = new Command('squash')
 
   command
-    .description('Squash branch commits into a single commit')
+    .description('Preview and squash branch commits into a single commit')
     .option('--base <branch>', 'Base branch to compare against')
     .action(async (options: { base?: string }) => {
       const configResult = await loadConfig()
@@ -54,23 +56,86 @@ export function createBranchSquashCommand (): Command {
 
       const currentBranchName = branchResult.data
 
-      const countResult = await countCommitsSince(baseBranch)
+      const commitsResult = await getCommitsSince(baseBranch)
 
-      if (countResult.error) {
-        cancel(countResult.error.message)
+      if (commitsResult.error) {
+        cancel(commitsResult.error.message)
         process.exit(1)
       }
 
-      const commitCount = countResult.data
+      const commits = commitsResult.data
 
-      if (commitCount < 2) {
-        cancel(`Nothing to squash. The branch only has ${commitCount} commit relative to ${baseBranch}.`)
+      if (commits.length < 2) {
+        cancel(`Nothing to squash. The branch only has ${commits.length} commit relative to ${baseBranch}.`)
+        process.exit(1)
+      }
+
+      let commitsToSquash = commits
+
+      while (true) {
+        const commitCount = commitsToSquash.length
+
+        if (commitCount < 2) {
+          cancel(`Nothing to squash. The selected range only contains ${commitCount} commit.`)
+          process.exit(1)
+        }
+
+        note(
+          commitsToSquash
+            .map((commit, index) => `${index + 1}. ${commit.shortHash} ${commit.subject}`)
+            .join('\n'),
+          `Commits to squash (${commitCount})`,
+        )
+
+        const shouldUseThisRange = await confirm({
+          message: `Squash these ${commitCount} commits into a single commit?`,
+          initialValue: true,
+        })
+
+        if (!isPromptValue(shouldUseThisRange)) {
+          cancelCommand()
+        }
+
+        if (shouldUseThisRange) {
+          break
+        }
+
+        const firstCommitHash = await select({
+          message: 'Select the first commit to include in the squash',
+          options: commits.map((commit) => ({
+            value: commit.hash,
+            label: `${commit.shortHash} ${commit.subject}`,
+            hint: commit.hash,
+          })),
+          initialValue: commitsToSquash[0]?.hash ?? commits[0]?.hash,
+        })
+
+        if (!isPromptValue(firstCommitHash)) {
+          cancelCommand()
+        }
+
+        const firstCommitIndex = commits.findIndex(
+          commit => commit.hash === firstCommitHash,
+        )
+
+        if (firstCommitIndex === -1) {
+          cancel('Selected commit was not found.')
+          process.exit(1)
+        }
+
+        commitsToSquash = commits.slice(firstCommitIndex)
+      }
+
+      const firstCommit = commitsToSquash[0]
+
+      if (firstCommit === undefined) {
+        cancel('No commits were selected for squash.')
         process.exit(1)
       }
 
       const description = await text({
-        message: `Squash ${commitCount} commits from ${currentBranchName} into one commit`,
-        placeholder: 'add branch commit and squash commands',
+        message: 'New commit description',
+        placeholder: 'group branch changes into one commit',
         validate: (value) => {
           const normalizedValue = value?.trim()
 
@@ -99,8 +164,12 @@ export function createBranchSquashCommand (): Command {
         cancelCommand()
       }
 
+      const previewMessage = body.trim()
+        ? `${description.trim()}\n\n${body.trim()}`
+        : description.trim()
+
       const shouldContinue = await confirm({
-        message: `Squash ${commitCount} commits from ${baseBranch}..HEAD into a new commit?`,
+        message: `Create the squashed commit with this message?\n\n${previewMessage}`,
         initialValue: true,
       })
 
@@ -112,7 +181,7 @@ export function createBranchSquashCommand (): Command {
         cancelCommand()
       }
 
-      const resetResult = await softResetTo(`HEAD~${commitCount}`)
+      const resetResult = await softResetTo(`${firstCommit.hash}^`)
 
       if (resetResult.error) {
         cancel(resetResult.error.message)
@@ -129,7 +198,7 @@ export function createBranchSquashCommand (): Command {
         process.exit(1)
       }
 
-      outro(`Squashed ${commitCount} commits into one commit on ${currentBranchName}.`)
+      outro(`Squashed ${commitsToSquash.length} commits into one commit on ${currentBranchName}.`)
     })
 
   return command
