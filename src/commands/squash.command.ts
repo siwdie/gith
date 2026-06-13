@@ -5,10 +5,10 @@ import {
   note,
   outro,
   select,
-  text,
 } from '@clack/prompts'
 import { Command } from 'commander'
 
+import { promptForCommitMessage } from '~/commands/_helper/prompt-commit.js'
 import { loadConfig } from '~/config/config-loader.js'
 import { isPromptValue } from '~/guards/prompt.js'
 import {
@@ -133,53 +133,10 @@ export function createBranchSquashCommand (): Command {
         process.exit(1)
       }
 
-      const description = await text({
-        message: 'New commit description',
-        placeholder: 'group branch changes into one commit',
-        validate: (value) => {
-          const normalizedValue = value?.trim()
-
-          if (!normalizedValue) {
-            return 'Description is required.'
-          }
-
-          if (normalizedValue.length > 72) {
-            return 'Keep the description under 72 characters.'
-          }
-
-          return undefined
-        },
-      })
-
-      if (!isPromptValue(description)) {
-        cancelCommand()
-      }
-
-      const body = await text({
-        message: 'Body (optional)',
-        placeholder: 'Explain the grouped changes',
-      })
-
-      if (!isPromptValue(body)) {
-        cancelCommand()
-      }
-
-      const previewMessage = body.trim()
-        ? `${description.trim()}\n\n${body.trim()}`
-        : description.trim()
-
-      const shouldContinue = await confirm({
-        message: `Create the squashed commit with this message?\n\n${previewMessage}`,
-        initialValue: true,
-      })
-
-      if (!isPromptValue(shouldContinue)) {
-        cancelCommand()
-      }
-
-      if (!shouldContinue) {
-        cancelCommand()
-      }
+      const message = await promptForCommitMessage(
+        config,
+        'Use this squashed commit message?',
+      )
 
       const resetResult = await softResetTo(`${firstCommit.hash}^`)
 
@@ -189,8 +146,8 @@ export function createBranchSquashCommand (): Command {
       }
 
       const commitResult = await commitWithMessage(
-        description.trim(),
-        body.trim() || undefined,
+        message.header,
+        message.body,
       )
 
       if (commitResult.error) {

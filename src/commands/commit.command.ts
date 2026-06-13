@@ -1,16 +1,8 @@
-import {
-  cancel,
-  confirm,
-  intro,
-  multiline,
-  outro,
-  select,
-  text
-} from '@clack/prompts'
+import { cancel, intro, outro } from '@clack/prompts'
 import { Command } from 'commander'
 
+import { promptForCommitMessage } from '~/commands/_helper/prompt-commit.js'
 import { loadConfig } from '~/config/config-loader.js'
-import { isPromptValue } from '~/guards/prompt.js'
 import { commitWithMessage, hasStagedChanges, stageAllTrackedFiles } from '~utils/git.js'
 
 
@@ -51,73 +43,7 @@ export function createBranchCommitCommand (): Command {
         }
       }
 
-      const type = await select({
-        message: 'Select the commit type',
-        options: config.commitTypes,
-      })
-
-      if (!isPromptValue(type)) {
-        cancelCommand()
-      }
-
-      const scope = await text({
-        message: 'Scope (optional)',
-        placeholder: 'branch',
-      })
-
-      if (!isPromptValue(scope)) {
-        cancelCommand()
-      }
-
-      const description = await text({
-        message: 'Short description',
-        placeholder: 'add commit helper',
-        validate: (value) => {
-          const normalizedValue = value?.trim()
-
-          if (!normalizedValue) {
-            return 'Description is required.'
-          }
-
-          if (normalizedValue.length > 72) {
-            return 'Keep the description under 72 characters.'
-          }
-
-          return undefined
-        },
-      })
-
-      if (!isPromptValue(description)) {
-        cancelCommand()
-      }
-
-      const body = await multiline({
-        message: 'Body (optional)',
-        placeholder: 'Explain what changed and why',
-      })
-
-      if (!isPromptValue(body)) {
-        cancelCommand()
-      }
-
-      const header = buildCommitHeader(type, scope, description)
-      const normalizedBody = body.trim()
-
-      const shouldCommit = await confirm({
-        message: normalizedBody
-          ? `Use this commit message?\n\n${header}\n\n${normalizedBody}`
-          : `Use this commit message?\n\n${header}`,
-        initialValue: true,
-      })
-
-      if (!isPromptValue(shouldCommit)) {
-        cancelCommand()
-      }
-
-      if (!shouldCommit) {
-        cancel('Commit cancelled.')
-        process.exit(0)
-      }
+      const message = await promptForCommitMessage(config)
 
       if (options.all) {
         const stageResult = await stageAllTrackedFiles()
@@ -129,8 +55,8 @@ export function createBranchCommitCommand (): Command {
       }
 
       const commitResult = await commitWithMessage(
-        header,
-        normalizedBody || undefined,
+        message.header,
+        message.body,
       )
 
       if (commitResult.error !== null) {
@@ -142,25 +68,4 @@ export function createBranchCommitCommand (): Command {
     })
 
   return command
-}
-
-
-function cancelCommand (): never {
-  cancel('Commit cancelled.')
-  process.exit(0)
-}
-
-function buildCommitHeader (
-  type: string,
-  scope: string,
-  description: string,
-): string {
-  const normalizedScope = scope.trim()
-  const normalizedDescription = description.trim()
-
-  if (normalizedScope) {
-    return `${type}(${normalizedScope}): ${normalizedDescription}`
-  }
-
-  return `${type}: ${normalizedDescription}`
 }
