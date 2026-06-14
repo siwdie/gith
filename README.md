@@ -12,46 +12,16 @@ Built with `Commander.js` and `@clack/prompts`.
 
 ## Quick start
 
-Install dependencies:
+Install as a dev dependency:
 
 ```bash
-pnpm install
+npm install -D gith
 ```
 
-Show help:
-
-```bash
-gith --help
-```
-
-Create a project config file:
+Initialize the project config:
 
 ```bash
 gith init
-```
-
-Create a branch:
-
-```bash
-gith branch create
-```
-
-Create a commit:
-
-```bash
-gith branch commit
-```
-
-Update your branch from the base branch:
-
-```bash
-gith branch update
-```
-
-Squash branch commits into one:
-
-```bash
-gith branch squash
 ```
 
 ## What it does
