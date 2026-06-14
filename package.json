@@ -1,7 +1,7 @@
 {
   "name": "gith",
   "version": "1.1.0",
-  "description": "Configurable git workflow cli with branch creation, rebase and squash helpers",
+  "description": "Configurable git workflow CLI with branch creation, rebase, commit, and squash helpers",
   "license": "MIT",
   "packageManager": "pnpm@11.6.0",
   "type": "module",
@@ -12,7 +12,10 @@
     "dist"
   ],
   "engines": {
-    "node": ">=24.13.1"
+    "node": ">=24"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "scripts": {
     "build": "rm -rf dist && tsup",
