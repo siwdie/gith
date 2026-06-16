@@ -6,7 +6,7 @@
   "packageManager": "pnpm@11.6.0",
   "type": "module",
   "bin": {
-    "gith": "./dist/cli.js"
+    "gith": "./dist/cli.mjs"
   },
   "files": [
     "dist"
@@ -19,7 +19,7 @@
   },
   "scripts": {
     "build": "rm -rf dist && tsup",
-    "dev": "pnpm build && node --enable-source-maps ./dist/cli.js",
+    "dev": "pnpm build && node ./dist/cli.mjs",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "check": "tsc --noEmit",

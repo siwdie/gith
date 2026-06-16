@@ -5,20 +5,15 @@ import { defineConfig } from 'tsup'
 export default defineConfig({
   entry: ['src/cli.ts'],
   format: ['esm'],
-  platform: 'node',
-  target: 'node24',
-  outDir: 'dist',
+  config: './tsconfig.json',
   clean: true,
-  bundle: true,
   splitting: false,
-  sourcemap: true,
+  sourcemap: false,
   dts: false,
-  treeshake: true,
-  minify: false,
-  keepNames: true,
-  shims: false,
-  cjsInterop: false,
-  banner: {
-    js: '#!/usr/bin/env node',
+  minify: true,
+  outExtension ({format}) {
+    return {
+      js: (format === 'esm') ? '.mjs' : '.cjs'
+    }
   },
 });
