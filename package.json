@@ -1,8 +1,12 @@
 {
   "name": "@siwdie/gith",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Configurable git workflow CLI with branch creation, rebase, commit, and squash helpers",
   "license": "MIT",
+  "repository": "https://github.com/siwdie/gith",
+  "publishConfig": {
+    "access": "public"
+  },
   "packageManager": "pnpm@11.6.0",
   "type": "module",
   "bin": {
@@ -13,9 +17,6 @@
   ],
   "engines": {
     "node": ">=24"
-  },
-  "publishConfig": {
-    "access": "public"
   },
   "scripts": {
     "build": "rm -rf dist && tsup",
