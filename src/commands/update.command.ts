@@ -1,8 +1,8 @@
-import { cancel, outro, spinner } from '@clack/prompts'
+import { outro, spinner } from '@clack/prompts'
 import { Command } from 'commander'
 
 import { loadConfig } from '~/config/config-loader.js'
-import { getCurrentBranchName, isInsideGitRepository, rebaseCurrentBranchOnto, fetchBranch } from '~utils/git.js'
+import { fetchBranch, getCurrentBranchName, isInsideGitRepository, rebaseCurrentBranchOnto } from '~utils/git.js'
 
 
 
