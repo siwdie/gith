@@ -1,4 +1,4 @@
-import { cancel, outro } from '@clack/prompts'
+import { cancel, spinner } from '@clack/prompts'
 import { Command } from 'commander'
 
 import { loadConfig } from '~/config/config-loader.js'
@@ -14,72 +14,58 @@ export function createBranchUpdateCommand (): Command {
     .option('-b, --base <branch>', 'Base branch name to rebase onto')
     .option('-r, --remote <remote>', 'Remote that contains the main branch', 'origin')
     .action(async (options: { base?: string, remote: string }) => {
-      const configResult = await loadConfig()
+      const spinnerService = spinner()
 
-      if (configResult.error) {
-        cancel(configResult.error.message)
+      try {
+        spinnerService.start('Updating branch...')
+
+        const configResult = await loadConfig()
+
+        if (configResult.error) {
+          throw new Error(configResult.error.message)
+        }
+
+        const config = configResult.data
+        const baseBranch = options.base ?? config.defaultBranch
+
+        const repositoryResult = await isInsideGitRepository()
+
+        if (repositoryResult.error) {
+          throw new Error(repositoryResult.error.message)
+        }
+
+        if (!repositoryResult.data) {
+          throw new Error('Current directory is not a valid Git repository')
+        }
+
+        const currentBranchResult = await getCurrentBranchName()
+
+        if (currentBranchResult.error) {
+          throw new Error(currentBranchResult.error.message)
+        }
+
+        const fetchResult = await fetchBranch(options.remote, baseBranch)
+
+        if (fetchResult.error) {
+          throw new Error(fetchResult.error.message)
+        }
+
+        const rebaseResult = await rebaseCurrentBranchOnto(`${options.remote}/${baseBranch}`)
+
+        if (rebaseResult.error) {
+          throw new Error(rebaseResult.error.message)
+        }
+
+        spinnerService.stop(`Updated branch ${currentBranchResult.data} on top of ${options.remote}/${baseBranch}. ` +
+        'If the branch was already pushed, you may need to push with --force-with-lease.')
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error'
+        cancel(message)
+
+        spinnerService.stop('Update failed.')
+
         process.exitCode = 1
-
-        return
       }
-
-      const config = configResult.data
-      const baseBranch = options.base ?? config.defaultBranch
-
-      const repositoryResult = await isInsideGitRepository()
-
-      if (repositoryResult.error) {
-        cancel(repositoryResult.error.message)
-        process.exitCode = 1
-
-        return
-      }
-
-      if (!repositoryResult.data) {
-        cancel('Current directory is not a valid Git repository')
-        process.exitCode = 1
-
-        return
-      }
-
-      const currentBranchResult = await getCurrentBranchName()
-
-      if (currentBranchResult.error) {
-        cancel(currentBranchResult.error.message)
-        process.exitCode = 1
-
-        return
-      }
-
-      if (currentBranchResult.data === baseBranch) {
-        cancel('Current branch is already the main branch')
-        process.exitCode = 1
-
-        return
-      }
-
-      const fetchResult = await fetchBranch(options.remote, baseBranch)
-
-      if (fetchResult.error) {
-        cancel(fetchResult.error.message)
-        process.exitCode = 1
-
-        return
-      }
-
-      const rebaseResult = await rebaseCurrentBranchOnto(`${options.remote}/${baseBranch}`)
-
-      if (rebaseResult.error) {
-        cancel(rebaseResult.error.message)
-        process.exitCode = 1
-
-        return
-      }
-
-      outro(
-        `Updated branch ${currentBranchResult.data} on top of ${options.remote}/${baseBranch}. ` +
-        'If the branch was already pushed, you may need to push with --force-with-lease.',
-      )
     })
 
   return command
