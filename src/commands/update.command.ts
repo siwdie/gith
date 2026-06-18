@@ -1,4 +1,4 @@
-import { cancel, spinner } from '@clack/prompts'
+import { cancel, outro, spinner } from '@clack/prompts'
 import { Command } from 'commander'
 
 import { loadConfig } from '~/config/config-loader.js'
@@ -56,13 +56,16 @@ export function createBranchUpdateCommand (): Command {
           throw new Error(rebaseResult.error.message)
         }
 
-        spinnerService.stop(`Updated branch ${currentBranchResult.data} on top of ${options.remote}/${baseBranch}. ` +
-        'If the branch was already pushed, you may need to push with --force-with-lease.')
-      } catch (error) {
-        const message = error instanceof Error ? error.message : 'Unknown error'
-        cancel(message)
+        spinnerService.stop()
 
-        spinnerService.stop('Update failed.')
+        outro(`Updated branch ${currentBranchResult.data} on top of ${options.remote}/${baseBranch}. ` +
+        'If the branch was already pushed, you may need to push with --force-with-lease.')
+
+      } catch (error) {
+        spinnerService.stop()
+
+        const message = error instanceof Error ? error.message : 'Unknown error'
+        outro(message)
 
         process.exitCode = 1
       }
