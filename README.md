@@ -1,6 +1,6 @@
 # gith
 
-![Version](https://img.shields.io/badge/version-1.1.0-blue)
+![Version](https://img.shields.io/badge/version-1.2.0-blue)
 ![Node.js](https://img.shields.io/badge/node-%3E=24-339933?logo=nodedotjs&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
 ![Commander](https://img.shields.io/badge/Commander.js-CLI-black)
