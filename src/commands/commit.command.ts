@@ -1,4 +1,4 @@
-import { cancel, intro, outro } from '@clack/prompts'
+import { intro, outro } from '@clack/prompts'
 import { Command } from 'commander'
 
 import { checkIfGitRepository } from '~/commands/_helper/check-if-git-repository.js'
