@@ -1,6 +1,6 @@
 {
   "name": "@siwdie/gith",
-  "version": "1.2.1",
+  "version": "1.3.0",
   "description": "Configurable git workflow CLI with branch creation, rebase, commit, and squash helpers",
   "license": "MIT",
   "repository": "https://github.com/siwdie/gith",
