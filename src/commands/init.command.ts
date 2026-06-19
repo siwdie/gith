@@ -5,6 +5,7 @@ import { join } from 'node:path'
 
 import { DEFAULT_GITH_CONFIG } from '~/config/default.config.js'
 import { isPromptValue } from '~/guards/prompt.js'
+import { cancelCommand } from '~/utils/cancel-command.js'
 import { fileExists } from '~/utils/file.js'
 
 
@@ -13,10 +14,6 @@ type InitCommandOptions = {
   force?: boolean
 }
 
-function cancelCommand (): never {
-  cancel('Init cancelled.')
-  process.exit(0)
-}
 
 export function createInitCommand (): Command {
   const command = new Command('init')
@@ -37,12 +34,11 @@ export function createInitCommand (): Command {
         })
 
         if (!isPromptValue(shouldOverwrite)) {
-          cancelCommand()
+          cancelCommand('Init cancelled.', 0)
         }
 
         if (!shouldOverwrite) {
-          outro('Existing gith.config.json kept unchanged.')
-          process.exit(0)
+          cancelCommand('Existing gith.config.json kept unchanged.', 0)
         }
       }
 
@@ -54,12 +50,11 @@ export function createInitCommand (): Command {
         await writeFile(configPath, configContent, 'utf8')
         outro('Created gith.config.json in the current directory.')
       } catch (error) {
-        cancel(
+        cancelCommand(
           error instanceof Error
             ? error.message
             : 'Failed to create gith.config.json',
         )
-        process.exit(1)
       }
     })
 

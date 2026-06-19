@@ -8,9 +8,11 @@ import {
 } from '@clack/prompts'
 import { Command } from 'commander'
 
+import { checkIfGitRepository } from '~/commands/_helper/check-if-git-repository.js'
 import { promptForCommitMessage } from '~/commands/_helper/prompt-commit.js'
 import { loadConfig } from '~/config/config-loader.js'
 import { isPromptValue } from '~/guards/prompt.js'
+import { cancelCommand } from '~/utils/cancel-command.js'
 import {
   commitWithMessage,
   getCommitsSince,
@@ -28,11 +30,12 @@ export function createBranchSquashCommand (): Command {
     .description('Preview and squash branch commits into a single commit')
     .option('--base <branch>', 'Base branch to compare against')
     .action(async (options: { base?: string }) => {
+      await checkIfGitRepository()
+
       const configResult = await loadConfig()
 
       if (configResult.error) {
-        cancel(configResult.error.message)
-        process.exit(1)
+        cancelCommand(configResult.error.message)
       }
 
       const config = configResult.data
@@ -41,8 +44,7 @@ export function createBranchSquashCommand (): Command {
       const cleanResult = await hasPendingChanges()
 
       if (cleanResult.error ?? cleanResult.data) {
-        cancel(cleanResult.error?.message ?? 'Pending changes detected. Commit, stash, or discard them before continuing.')
-        process.exit(1)
+        cancelCommand(cleanResult.error?.message ?? 'Pending changes detected. Commit, stash, or discard them before continuing.')
       }
 
       intro('Squash branch commits')
@@ -50,8 +52,7 @@ export function createBranchSquashCommand (): Command {
       const branchResult = await getCurrentBranchName()
 
       if (branchResult.error) {
-        cancel(branchResult.error.message)
-        process.exit(1)
+        cancelCommand(branchResult.error.message)
       }
 
       const currentBranchName = branchResult.data
@@ -59,15 +60,13 @@ export function createBranchSquashCommand (): Command {
       const commitsResult = await getCommitsSince(baseBranch)
 
       if (commitsResult.error) {
-        cancel(commitsResult.error.message)
-        process.exit(1)
+        cancelCommand(commitsResult.error.message)
       }
 
       const commits = commitsResult.data
 
       if (commits.length < 2) {
-        cancel(`Nothing to squash. The branch only has ${commits.length} commit relative to ${baseBranch}.`)
-        process.exit(1)
+        cancelCommand(`Nothing to squash. The branch only has ${commits.length} commit relative to ${baseBranch}.`)
       }
 
       let commitsToSquash = commits
@@ -76,8 +75,7 @@ export function createBranchSquashCommand (): Command {
         const commitCount = commitsToSquash.length
 
         if (commitCount < 2) {
-          cancel(`Nothing to squash. The selected range only contains ${commitCount} commit.`)
-          process.exit(1)
+          cancelCommand(`Nothing to squash. The selected range only contains ${commitCount} commit.`)
         }
 
         note(
@@ -93,7 +91,7 @@ export function createBranchSquashCommand (): Command {
         })
 
         if (!isPromptValue(shouldUseThisRange)) {
-          cancelCommand()
+          cancelCommand('Squash cancelled.', 0)
         }
 
         if (shouldUseThisRange) {
@@ -111,7 +109,7 @@ export function createBranchSquashCommand (): Command {
         })
 
         if (!isPromptValue(firstCommitHash)) {
-          cancelCommand()
+          cancelCommand('Squash cancelled.', 0)
         }
 
         const firstCommitIndex = commits.findIndex(
@@ -119,8 +117,7 @@ export function createBranchSquashCommand (): Command {
         )
 
         if (firstCommitIndex === -1) {
-          cancel('Selected commit was not found.')
-          process.exit(1)
+          cancelCommand('Selected commit was not found.')
         }
 
         commitsToSquash = commits.slice(firstCommitIndex)
@@ -129,8 +126,7 @@ export function createBranchSquashCommand (): Command {
       const firstCommit = commitsToSquash[0]
 
       if (firstCommit === undefined) {
-        cancel('No commits were selected for squash.')
-        process.exit(1)
+        cancelCommand('No commits were selected for squash.')
       }
 
       const message = await promptForCommitMessage(
@@ -141,8 +137,7 @@ export function createBranchSquashCommand (): Command {
       const resetResult = await softResetTo(`${firstCommit.hash}^`)
 
       if (resetResult.error) {
-        cancel(resetResult.error.message)
-        process.exit(1)
+        cancelCommand(resetResult.error.message)
       }
 
       const commitResult = await commitWithMessage(
@@ -151,17 +146,11 @@ export function createBranchSquashCommand (): Command {
       )
 
       if (commitResult.error) {
-        cancel(commitResult.error.message)
-        process.exit(1)
+        cancelCommand(commitResult.error.message)
       }
 
       outro(`Squashed ${commitsToSquash.length} commits into one commit on ${currentBranchName}.`)
     })
 
   return command
-}
-
-function cancelCommand (): never {
-  cancel('Squash cancelled.')
-  process.exit(0)
 }

@@ -147,6 +147,10 @@ export async function hasStagedChanges (
   return createErrorResult(new Error(message))
 }
 
+export async function renameCurrentBranch (newName: string): Promise<ResultType<string>> {
+  return runGit(['branch', '-m', newName])
+}
+
 
 type GitCommitEntry = {
   hash: string

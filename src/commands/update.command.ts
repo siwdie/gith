@@ -1,8 +1,9 @@
 import { outro, spinner } from '@clack/prompts'
 import { Command } from 'commander'
 
+import { checkIfGitRepository } from '~/commands/_helper/check-if-git-repository.js'
 import { loadConfig } from '~/config/config-loader.js'
-import { fetchBranch, getCurrentBranchName, isInsideGitRepository, rebaseCurrentBranchOnto } from '~utils/git.js'
+import { fetchBranch, getCurrentBranchName, rebaseCurrentBranchOnto } from '~utils/git.js'
 
 
 
@@ -14,6 +15,8 @@ export function createBranchUpdateCommand (): Command {
     .option('-b, --base <branch>', 'Base branch name to rebase onto')
     .option('-r, --remote <remote>', 'Remote that contains the main branch', 'origin')
     .action(async (options: { base?: string, remote: string }) => {
+      await checkIfGitRepository()
+
       const spinnerService = spinner()
 
       try {
@@ -27,16 +30,6 @@ export function createBranchUpdateCommand (): Command {
 
         const config = configResult.data
         const baseBranch = options.base ?? config.defaultBranch
-
-        const repositoryResult = await isInsideGitRepository()
-
-        if (repositoryResult.error) {
-          throw new Error(repositoryResult.error.message)
-        }
-
-        if (!repositoryResult.data) {
-          throw new Error('Current directory is not a valid Git repository')
-        }
 
         const currentBranchResult = await getCurrentBranchName()
 

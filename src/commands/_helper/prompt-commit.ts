@@ -1,12 +1,7 @@
-import {
-  cancel,
-  confirm,
-  multiline,
-  select,
-  text,
-} from '@clack/prompts'
+import { confirm, multiline, select, text } from '@clack/prompts'
 
 import { isPromptValue } from '~/guards/prompt.js'
+import { cancelCommand } from '~/utils/cancel-command.js'
 
 
 
@@ -88,12 +83,8 @@ export async function promptForCommitMessage (
     initialValue: true,
   })
 
-  if (!isPromptValue(shouldCommit)) {
-    cancelCommand('Commit cancelled.')
-  }
-
-  if (!shouldCommit) {
-    cancelCommand('Commit cancelled.')
+  if (!isPromptValue(shouldCommit) || !shouldCommit) {
+    cancelCommand('Commit cancelled.', 0)
   }
 
   return {
@@ -117,7 +108,3 @@ function buildCommitHeader (
   return `${type}: ${normalizedDescription}`
 }
 
-function cancelCommand (message: string): never {
-  cancel(message)
-  process.exit(0)
-}
