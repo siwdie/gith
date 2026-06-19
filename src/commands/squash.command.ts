@@ -1,10 +1,9 @@
 import {
-  cancel,
   confirm,
   intro,
   note,
   outro,
-  select,
+  select
 } from '@clack/prompts'
 import { Command } from 'commander'
 

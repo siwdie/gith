@@ -1,4 +1,4 @@
-import { cancel, confirm, intro, outro } from '@clack/prompts'
+import { confirm, intro, outro } from '@clack/prompts'
 import { Command } from 'commander'
 import { writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
