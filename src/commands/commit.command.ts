@@ -1,8 +1,10 @@
 import { cancel, intro, outro } from '@clack/prompts'
 import { Command } from 'commander'
 
+import { checkIfGitRepository } from '~/commands/_helper/check-if-git-repository.js'
 import { promptForCommitMessage } from '~/commands/_helper/prompt-commit.js'
 import { loadConfig } from '~/config/config-loader.js'
+import { cancelCommand } from '~/utils/cancel-command.js'
 import { commitWithMessage, hasStagedChanges, stageAllTrackedFiles } from '~utils/git.js'
 
 
@@ -18,11 +20,12 @@ export function createBranchCommitCommand (): Command {
     .description('Create a conventional commit for the current branch')
     .option('--all', 'Stage all tracked changes before committing')
     .action(async (options: BranchCommitCommandOptions) => {
+      await checkIfGitRepository()
+
       const configResult = await loadConfig()
 
       if (configResult.error) {
-        cancel(configResult.error.message)
-        process.exit(1)
+        cancelCommand(configResult.error.message)
       }
 
       const config = configResult.data
@@ -33,13 +36,11 @@ export function createBranchCommitCommand (): Command {
         const stagedResult = await hasStagedChanges()
 
         if (stagedResult.error) {
-          cancel(stagedResult.error.message)
-          process.exit(1)
+          cancelCommand(stagedResult.error.message)
         }
 
         if (!stagedResult.data) {
-          cancel('No staged changes found. Stage files first or run the command with --all.')
-          process.exit(1)
+          cancelCommand('No staged changes found. Stage files first or run the command with --all.')
         }
       }
 
@@ -49,8 +50,7 @@ export function createBranchCommitCommand (): Command {
         const stageResult = await stageAllTrackedFiles()
 
         if (stageResult.error !== null) {
-          cancel(stageResult.error.message)
-          process.exit(1)
+          cancelCommand(stageResult.error.message)
         }
       }
 
@@ -60,8 +60,7 @@ export function createBranchCommitCommand (): Command {
       )
 
       if (commitResult.error !== null) {
-        cancel(commitResult.error.message)
-        process.exit(1)
+        cancelCommand(commitResult.error.message)
       }
 
       outro('Commit created successfully.')
