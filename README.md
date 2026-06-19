@@ -41,6 +41,7 @@ Current features include:
 |---|---|
 | `gith init` | Create a `gith.config.json` file with the default project configuration. |
 | `gith branch create` | Create a branch interactively using the configured branch types. |
+| `gith branch rename` | Rename a branch interactively using the configured branch types. |
 | `gith branch update` | Fetch the base branch from the remote and rebase the current branch on top of it. |
 | `gith branch commit` | Create a guided conventional commit for the current branch. |
 | `gith branch commit --all` | Stage tracked changes and create a guided conventional commit. |
