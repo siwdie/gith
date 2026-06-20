@@ -1,6 +1,5 @@
 import { intro, outro } from '@clack/prompts'
 import { Command } from 'commander'
-import { text } from 'node:stream/consumers'
 
 import { checkIfGitRepository } from '~/commands/_helper/check-if-git-repository.js'
 import { promptForCommitMessage } from '~/commands/_helper/prompt-commit.js'
