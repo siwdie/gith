@@ -28,6 +28,11 @@ export const DEFAULT_GITH_CONFIG: GithConfig = {
       hint: 'A bug fix',
     },
     {
+      value: 'release',
+      label: 'release',
+      hint: 'Release branch',
+    },
+    {
       value: 'docs',
       label: 'docs',
       hint: 'Documentation only changes',
