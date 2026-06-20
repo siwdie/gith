@@ -1,4 +1,4 @@
-name: Pull Request Build Check
+name: Build
 
 on:
   workflow_call:
