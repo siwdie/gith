@@ -1,0 +1,11 @@
+name: Pull Request Build Check
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened]
+
+jobs:
+  build:
+    uses: ./.github/workflows/build.yml
