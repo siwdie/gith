@@ -1,5 +1,6 @@
 import { intro, outro } from '@clack/prompts'
 import { Command } from 'commander'
+import { text } from 'node:stream/consumers'
 
 import { checkIfGitRepository } from '~/commands/_helper/check-if-git-repository.js'
 import { promptForCommitMessage } from '~/commands/_helper/prompt-commit.js'
@@ -32,20 +33,6 @@ export function createBranchCommitCommand (): Command {
 
       intro('Create branch commit')
 
-      if (!options.all) {
-        const stagedResult = await hasStagedChanges()
-
-        if (stagedResult.error) {
-          cancelCommand(stagedResult.error.message)
-        }
-
-        if (!stagedResult.data) {
-          cancelCommand('No staged changes found. Stage files first or run the command with --all.')
-        }
-      }
-
-      const message = await promptForCommitMessage(config)
-
       if (options.all) {
         const stageResult = await stageAllTrackedFiles()
 
@@ -53,6 +40,19 @@ export function createBranchCommitCommand (): Command {
           cancelCommand(stageResult.error.message)
         }
       }
+
+      const stagedResult = await hasStagedChanges()
+
+      if (stagedResult.error) {
+        cancelCommand(stagedResult.error.message)
+      }
+
+      if (!stagedResult.data) {
+        cancelCommand('No staged changes found. Stage files first or run the command with --all.')
+      }
+
+      const message = await promptForCommitMessage(config)
+
 
       const commitResult = await commitWithMessage(
         message.header,
