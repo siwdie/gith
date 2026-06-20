@@ -125,6 +125,10 @@ export async function softResetTo (
   return runGit(['reset', '--soft', targetRevision], options)
 }
 
+export async function createTag (tag: string, message: string): Promise<ResultType<string>> {
+  return runGit(['tag', '-a', tag, '-m', message])
+}
+
 
 export async function hasStagedChanges (
   options?: RunGitOptions,

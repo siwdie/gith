@@ -93,7 +93,7 @@ export async function promptForCommitMessage (
   }
 }
 
-function buildCommitHeader (
+export function buildCommitHeader (
   type: string,
   scope: string,
   description: string,
