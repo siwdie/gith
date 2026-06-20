@@ -1,6 +1,7 @@
 import {
   confirm,
   intro,
+  isCancel,
   note,
   outro,
   select
@@ -10,7 +11,6 @@ import { Command } from 'commander'
 import { checkIfGitRepository } from '~/commands/_helper/check-if-git-repository.js'
 import { promptForCommitMessage } from '~/commands/_helper/prompt-commit.js'
 import { loadConfig } from '~/config/config-loader.js'
-import { isPromptValue } from '~/guards/prompt.js'
 import { cancelCommand } from '~/utils/cancel-command.js'
 import {
   commitWithMessage,
@@ -89,7 +89,7 @@ export function createBranchSquashCommand (): Command {
           initialValue: true,
         })
 
-        if (!isPromptValue(shouldUseThisRange)) {
+        if (isCancel(shouldUseThisRange)) {
           cancelCommand('Squash cancelled.', 0)
         }
 
@@ -107,7 +107,7 @@ export function createBranchSquashCommand (): Command {
           initialValue: commitsToSquash[0]?.hash ?? commits[0]?.hash,
         })
 
-        if (!isPromptValue(firstCommitHash)) {
+        if (isCancel(firstCommitHash)) {
           cancelCommand('Squash cancelled.', 0)
         }
 

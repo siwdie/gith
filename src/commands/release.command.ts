@@ -1,10 +1,15 @@
-import { intro, outro, spinner, text } from '@clack/prompts'
+import {
+  intro,
+  isCancel,
+  outro,
+  spinner,
+  text
+} from '@clack/prompts'
 import { Command } from 'commander'
 
 import { checkIfGitRepository } from '~/commands/_helper/check-if-git-repository.js'
 import { buildCommitHeader } from '~/commands/_helper/prompt-commit.js'
 import { loadConfig } from '~/config/config-loader.js'
-import { isPromptValue } from '~/guards/prompt.js'
 import { cancelCommand } from '~/utils/cancel-command.js'
 import { commitWithMessage, createTag, hasStagedChanges } from '~utils/git.js'
 
@@ -45,7 +50,7 @@ export function createBranchReleaseCommand (): Command {
         },
       })
 
-      if (!isPromptValue(version)) {
+      if (isCancel(version)) {
         cancelCommand('Operation cancelled.')
       }
 

@@ -1,10 +1,9 @@
-import { confirm, intro, outro } from '@clack/prompts'
+import { confirm, intro, isCancel, outro } from '@clack/prompts'
 import { Command } from 'commander'
 import { writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 
 import { DEFAULT_GITH_CONFIG } from '~/config/default.config.js'
-import { isPromptValue } from '~/guards/prompt.js'
 import { cancelCommand } from '~/utils/cancel-command.js'
 import { fileExists } from '~/utils/file.js'
 
@@ -33,7 +32,7 @@ export function createInitCommand (): Command {
           initialValue: false,
         })
 
-        if (!isPromptValue(shouldOverwrite)) {
+        if (isCancel(shouldOverwrite)) {
           cancelCommand('Init cancelled.', 0)
         }
 

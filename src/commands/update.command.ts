@@ -51,7 +51,7 @@ export function createBranchUpdateCommand (): Command {
 
         spinnerService.stop()
 
-        outro(`Updated branch ${currentBranchResult.data} on top of ${options.remote}/${baseBranch}. ` +
+        outro(`Updated branch ${currentBranchResult.data} on top of ${options.remote}/${baseBranch}. \n\n` +
         'If the branch was already pushed, you may need to push with --force-with-lease.')
 
       } catch (error) {
