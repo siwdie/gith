@@ -15,8 +15,12 @@
   "bin": {
     "gith": "./dist/cli.mjs"
   },
+  "exports": {
+    "./schema": "./schema/gith.schema.json"
+  },
   "files": [
-    "dist"
+    "dist",
+    "schema"
   ],
   "engines": {
     "node": ">=24"
