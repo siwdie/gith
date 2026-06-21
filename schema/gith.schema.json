@@ -1,0 +1,55 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Gith Config",
+  "description": "Configuration file for gith CLI",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "JSON Schema reference"
+    },
+    "defaultBranch": {
+      "type": "string",
+      "description": "Default base branch for new branches",
+      "default": "main",
+      "examples": ["main", "master", "develop"]
+    },
+    "branchTypes": {
+      "type": "array",
+      "description": "Available branch types for the branch creation command",
+      "items": {
+        "$ref": "#/definitions/selectOption"
+      }
+    },
+    "commitTypes": {
+      "type": "array",
+      "description": "Available commit types for the commit command",
+      "items": {
+        "$ref": "#/definitions/selectOption"
+      }
+    }
+  },
+  "definitions": {
+    "selectOption": {
+      "type": "object",
+      "description": "An option shown in select prompts",
+      "additionalProperties": false,
+      "required": ["value", "label"],
+      "properties": {
+        "value": {
+          "type": "string",
+          "description": "Internal value used by the CLI"
+        },
+        "label": {
+          "type": "string",
+          "description": "Text displayed in the prompt"
+        },
+        "hint": {
+          "type": "string",
+          "description": "Hint text shown alongside the option"
+        }
+      }
+    }
+  }
+}

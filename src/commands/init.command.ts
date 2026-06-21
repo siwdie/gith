@@ -43,7 +43,12 @@ export function createInitCommand (): Command {
 
       intro('Initialize gith.config.json')
 
-      const configContent = JSON.stringify(DEFAULT_GITH_CONFIG, null, 2)
+      const content = {
+        '$schema': 'https://unpkg.com/@siwdie/gith/schema/gith.schema.json',
+        ...DEFAULT_GITH_CONFIG
+      }
+
+      const configContent = JSON.stringify(content, null, 2)
 
       try {
         await writeFile(configPath, configContent, 'utf8')
