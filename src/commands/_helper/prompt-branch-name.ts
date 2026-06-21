@@ -3,8 +3,9 @@ import { isCancel, select, text } from '@clack/prompts'
 import type { GithConfig } from '~/config/config.types.js'
 import type { ResultType } from '~/utils/result.js'
 
-import { isValidBranchNamePart, normalizeBranchNamePart } from '~/utils/branch/naming.js'
+import { isValidBranchNamePart } from '~/guards/is-valid-branch.js'
 import { cancelCommand } from '~/utils/cancel-command.js'
+import { normalizeBranchNamePart } from '~/utils/normalization.js'
 import { createDataResult, createErrorResult } from '~/utils/result.js'
 
 

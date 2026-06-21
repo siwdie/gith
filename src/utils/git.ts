@@ -98,26 +98,6 @@ export async function hasPendingChanges (
   return createDataResult(result.data !== '')
 }
 
-export async function getMergeBase (
-  targetBranch: string,
-  options?: RunGitOptions,
-): Promise<ResultType<string>> {
-  return runGit(['merge-base', 'HEAD', targetBranch], options)
-}
-
-export async function countCommitsSince (
-  targetBranch: string,
-  options?: RunGitOptions,
-): Promise<ResultType<number>> {
-  const result = await runGit(['rev-list', '--count', `${targetBranch}..HEAD`], options)
-
-  if (result.error !== null) {
-    return createErrorResult(result.error)
-  }
-
-  return createDataResult(Number(result.data))
-}
-
 export async function softResetTo (
   targetRevision: string,
   options?: RunGitOptions,
