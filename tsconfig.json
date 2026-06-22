@@ -18,7 +18,6 @@
     "strict": true,
     "noImplicitOverride": true,
     "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true,
     "noFallthroughCasesInSwitch": true,
 
     "sourceMap": true,
