@@ -4,8 +4,8 @@ import { join } from 'node:path'
 import type { GithConfig } from '~/config/config.types.js'
 import type { ResultType } from '~utils/result.js'
 
+import { githConfigPartialSchema, githConfigSchema } from '~/config/config.types.js'
 import { DEFAULT_GITH_CONFIG } from '~/config/default.config.js'
-import { isPartialGithConfig } from '~/guards/config.js'
 import { createDataResult, createErrorResult } from '~utils/result.js'
 
 
@@ -18,17 +18,19 @@ export async function loadConfig (
 
   try {
     const fileContent = await readFile(configPath, 'utf8')
-    const parsedConfig: unknown = JSON.parse(fileContent)
+    const parsed = githConfigPartialSchema.safeParse(JSON.parse(fileContent))
 
-    if (!isPartialGithConfig(parsedConfig)) return createErrorResult(new Error('Invalid gith.config.json format'))
+    if (!parsed.success) {
+      return createErrorResult(new Error(
+        parsed.error.issues
+          .map(i => `${i.path.join('.')}: ${i.message}`)
+          .join('\n'),
+      ))
+    }
 
-    return createDataResult(mergeConfig(parsedConfig))
+    return mergeConfig(parsed.data)
   } catch (error) {
-    if (
-      error instanceof Error
-      && 'code' in error
-      && error.code === 'ENOENT'
-    ) {
+    if (error instanceof Error && 'code' in error && error.code === 'ENOENT') {
       return createDataResult(DEFAULT_GITH_CONFIG)
     }
 
@@ -38,12 +40,22 @@ export async function loadConfig (
   }
 }
 
-function mergeConfig (
-  config: Partial<GithConfig>,
-): GithConfig {
-  return {
+function mergeConfig (config: Partial<GithConfig>): ResultType<GithConfig> {
+  const merged = {
     defaultBranch: config.defaultBranch ?? DEFAULT_GITH_CONFIG.defaultBranch,
     branchTypes: config.branchTypes ?? DEFAULT_GITH_CONFIG.branchTypes,
     commitTypes: config.commitTypes ?? DEFAULT_GITH_CONFIG.commitTypes,
   }
+
+  const parsed = githConfigSchema.safeParse(merged)
+
+  if (!parsed.success) {
+    return createErrorResult(new Error(
+      parsed.error.issues
+        .map(i => `${i.path.join('.')}: ${i.message}`)
+        .join('\n'),
+    ))
+  }
+
+  return createDataResult(parsed.data)
 }
