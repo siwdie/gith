@@ -1,9 +1,10 @@
 import { intro, outro } from '@clack/prompts'
 import { Command } from 'commander'
 
+import type { GithConfig } from '~/config/config.types.js'
+
 import { checkIfGitRepository } from '~/commands/_helper/check-if-git-repository.js'
 import { promptForCommitMessage } from '~/commands/_helper/prompt-commit.js'
-import { loadConfig } from '~/config/config-loader.js'
 import { cancelCommand } from '~/utils/cancel-command.js'
 import { commitWithMessage, hasStagedChanges, stageAllTrackedFiles } from '~utils/git.js'
 
@@ -13,7 +14,7 @@ type BranchCommitCommandOptions = {
   all?: boolean
 }
 
-export function createBranchCommitCommand (): Command {
+export function createBranchCommitCommand (config: GithConfig): Command {
   const command = new Command('commit')
 
   command
@@ -21,14 +22,6 @@ export function createBranchCommitCommand (): Command {
     .option('--all', 'Stage all tracked changes before committing')
     .action(async (options: BranchCommitCommandOptions) => {
       await checkIfGitRepository()
-
-      const configResult = await loadConfig()
-
-      if (configResult.error) {
-        cancelCommand(configResult.error.message)
-      }
-
-      const config = configResult.data
 
       intro('Create branch commit')
 

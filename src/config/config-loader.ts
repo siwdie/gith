@@ -1,3 +1,4 @@
+import { log } from '@clack/prompts'
 import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 
@@ -6,6 +7,8 @@ import type { ResultType } from '~utils/result.js'
 
 import { githConfigPartialSchema, githConfigSchema } from '~/config/config.types.js'
 import { DEFAULT_GITH_CONFIG } from '~/config/default.config.js'
+import { parseToTypedJson } from '~/utils/object.js'
+import { safeParse } from '~/utils/zod.js'
 import { createDataResult, createErrorResult } from '~utils/result.js'
 
 
@@ -18,25 +21,21 @@ export async function loadConfig (
 
   try {
     const fileContent = await readFile(configPath, 'utf8')
-    const parsed = githConfigPartialSchema.safeParse(JSON.parse(fileContent))
+    const jsonResult = parseToTypedJson<Partial<GithConfig>>(fileContent)
 
-    if (!parsed.success) {
-      return createErrorResult(new Error(
-        parsed.error.issues
-          .map(i => `${i.path.join('.')}: ${i.message}`)
-          .join('\n'),
-      ))
-    }
+    if (jsonResult.error) {
+      log.warn(`Error reading config: ${jsonResult.error.message}. — using defaults \n`)
 
-    return mergeConfig(parsed.data)
-  } catch (error) {
-    if (error instanceof Error && 'code' in error && error.code === 'ENOENT') {
       return createDataResult(DEFAULT_GITH_CONFIG)
     }
 
-    if (error instanceof Error) return createErrorResult(error)
+    const parsed = safeParse(githConfigPartialSchema, jsonResult.data)
 
-    return createErrorResult(new Error('Failed to load gith.config.json'))
+    if (parsed.error) return createErrorResult(parsed.error)
+
+    return mergeConfig(parsed.data)
+  } catch {
+    return createDataResult(DEFAULT_GITH_CONFIG)
   }
 }
 

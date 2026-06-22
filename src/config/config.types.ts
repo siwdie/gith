@@ -1,15 +1,17 @@
 import z from 'zod'
 
+import { zString, zStringOptional } from '~/utils/zod.js'
+
 
 
 export const githSelectOptionSchema = z.object({
-  value: z.string(),
-  label: z.string(),
-  hint: z.string().optional(),
+  value: zString,
+  label: zString,
+  hint: zStringOptional,
 })
 
 export const githConfigSchema = z.object({
-  defaultBranch: z.string(),
+  defaultBranch: zString,
   branchTypes: z.array(githSelectOptionSchema),
   commitTypes: z.array(githSelectOptionSchema),
 })

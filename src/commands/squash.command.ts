@@ -8,9 +8,10 @@ import {
 } from '@clack/prompts'
 import { Command } from 'commander'
 
+import type { GithConfig } from '~/config/config.types.js'
+
 import { checkIfGitRepository } from '~/commands/_helper/check-if-git-repository.js'
 import { promptForCommitMessage } from '~/commands/_helper/prompt-commit.js'
-import { loadConfig } from '~/config/config-loader.js'
 import { cancelCommand } from '~/utils/cancel-command.js'
 import {
   commitWithMessage,
@@ -22,7 +23,7 @@ import {
 
 
 
-export function createBranchSquashCommand (): Command {
+export function createBranchSquashCommand (config: GithConfig): Command {
   const command = new Command('squash')
 
   command
@@ -31,13 +32,7 @@ export function createBranchSquashCommand (): Command {
     .action(async (options: { base?: string }) => {
       await checkIfGitRepository()
 
-      const configResult = await loadConfig()
-
-      if (configResult.error) {
-        cancelCommand(configResult.error.message)
-      }
-
-      const config = configResult.data
+      // TODO: check if branch exists
       const baseBranch = options.base ?? config.defaultBranch
 
       const cleanResult = await hasPendingChanges()

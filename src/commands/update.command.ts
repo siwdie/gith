@@ -1,13 +1,14 @@
 import { outro, spinner } from '@clack/prompts'
 import { Command } from 'commander'
 
+import type { GithConfig } from '~/config/config.types.js'
+
 import { checkIfGitRepository } from '~/commands/_helper/check-if-git-repository.js'
-import { loadConfig } from '~/config/config-loader.js'
 import { fetchBranch, getCurrentBranchName, rebaseCurrentBranchOnto } from '~utils/git.js'
 
 
 
-export function createBranchUpdateCommand (): Command {
+export function createBranchUpdateCommand (config: GithConfig): Command {
   const command = new Command('update')
 
   command
@@ -22,13 +23,7 @@ export function createBranchUpdateCommand (): Command {
       try {
         spinnerService.start('Updating branch...')
 
-        const configResult = await loadConfig()
-
-        if (configResult.error) {
-          throw new Error(configResult.error.message)
-        }
-
-        const config = configResult.data
+        // TODO: check if branch exists
         const baseBranch = options.base ?? config.defaultBranch
 
         const currentBranchResult = await getCurrentBranchName()
