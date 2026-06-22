@@ -7,8 +7,11 @@ import { createInitCommand } from '~/commands/init.command.js'
 import { loadConfig } from '~/config/config-loader.js'
 import { createBranchCommandGroup } from '~/groups/branch.group.js'
 import { cancelCommand } from '~/utils/cancel-command.js'
+import { checkIfGitRepository } from '~/utils/check-if-git-repository.js'
 
 
+
+await checkIfGitRepository()
 
 const configResult = await loadConfig()
 

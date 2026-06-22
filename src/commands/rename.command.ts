@@ -3,7 +3,6 @@ import { Command } from 'commander'
 
 import type { GithConfig } from '~/config/config.types.js'
 
-import { checkIfGitRepository } from '~/commands/_helper/check-if-git-repository.js'
 import { promptForBranchName } from '~/commands/_helper/prompt-branch-name.js'
 import { cancelCommand } from '~/utils/cancel-command.js'
 import { renameCurrentBranch } from '~utils/git.js'
@@ -17,8 +16,6 @@ export function createBranchRenameCommand (config: GithConfig): Command {
     .description('Rename the current branch')
     .argument('[name]', 'New branch name')
     .action(async () => {
-      await checkIfGitRepository()
-
       intro('Rename branch')
 
       const branchName = await promptForBranchName(config)

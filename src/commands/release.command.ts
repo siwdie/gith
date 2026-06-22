@@ -8,7 +8,6 @@ import {
 import { Command } from 'commander'
 
 
-import { checkIfGitRepository } from '~/commands/_helper/check-if-git-repository.js'
 import { buildCommitHeader } from '~/commands/_helper/prompt-commit.js'
 import { cancelCommand } from '~/utils/cancel-command.js'
 import { commitWithMessage, createTag, hasStagedChanges } from '~utils/git.js'
@@ -21,8 +20,6 @@ export function createBranchReleaseCommand (): Command {
   command
     .description('Create a release commit and tag for the given version')
     .action(async () => {
-      await checkIfGitRepository()
-
       intro('Create release')
 
       const stagedResult = await hasStagedChanges()

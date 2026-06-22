@@ -10,7 +10,6 @@ import { Command } from 'commander'
 
 import type { GithConfig } from '~/config/config.types.js'
 
-import { checkIfGitRepository } from '~/commands/_helper/check-if-git-repository.js'
 import { promptForCommitMessage } from '~/commands/_helper/prompt-commit.js'
 import { cancelCommand } from '~/utils/cancel-command.js'
 import {
@@ -30,8 +29,6 @@ export function createBranchSquashCommand (config: GithConfig): Command {
     .description('Preview and squash branch commits into a single commit')
     .option('--base <branch>', 'Base branch to compare against')
     .action(async (options: { base?: string }) => {
-      await checkIfGitRepository()
-
       // TODO: check if branch exists
       const baseBranch = options.base ?? config.defaultBranch
 

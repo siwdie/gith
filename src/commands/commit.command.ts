@@ -3,7 +3,6 @@ import { Command } from 'commander'
 
 import type { GithConfig } from '~/config/config.types.js'
 
-import { checkIfGitRepository } from '~/commands/_helper/check-if-git-repository.js'
 import { promptForCommitMessage } from '~/commands/_helper/prompt-commit.js'
 import { cancelCommand } from '~/utils/cancel-command.js'
 import { commitWithMessage, hasStagedChanges, stageAllTrackedFiles } from '~utils/git.js'
@@ -21,8 +20,6 @@ export function createBranchCommitCommand (config: GithConfig): Command {
     .description('Create a conventional commit for the current branch')
     .option('--all', 'Stage all tracked changes before committing')
     .action(async (options: BranchCommitCommandOptions) => {
-      await checkIfGitRepository()
-
       intro('Create branch commit')
 
       if (options.all) {
