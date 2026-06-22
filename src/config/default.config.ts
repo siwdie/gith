@@ -4,6 +4,16 @@ import type { GithConfig } from '~/config/config.types.js'
 
 export const DEFAULT_GITH_CONFIG: GithConfig = {
   defaultBranch: 'main',
+  commit: {
+    header: {
+      minLength: 10,
+      maxLength: 72,
+    },
+    body: {
+      enabled: true,
+      maxLength: 500,
+    },
+  },
   branchTypes: [
     {
       value: 'feature',

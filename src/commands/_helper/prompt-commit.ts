@@ -6,19 +6,11 @@ import {
   text
 } from '@clack/prompts'
 
+import type { GithConfig } from '~/config/config.types.js'
+
 import { cancelCommand } from '~/utils/cancel-command.js'
 
 
-
-type CommitTypeOption = {
-  value: string
-  label?: string
-  hint?: string
-}
-
-type CommitConfig = {
-  commitTypes: Array<CommitTypeOption>
-}
 
 export type PromptedCommitMessage = {
   header: string
@@ -26,7 +18,7 @@ export type PromptedCommitMessage = {
 }
 
 export async function promptForCommitMessage (
-  config: CommitConfig,
+  config: GithConfig,
   confirmationMessage = 'Use this commit message?',
 ): Promise<PromptedCommitMessage> {
   const type = await select({
@@ -57,8 +49,11 @@ export async function promptForCommitMessage (
         return 'Description is required.'
       }
 
-      if (normalizedValue.length > 72) {
-        return 'Keep the description under 72 characters.'
+      if (
+        normalizedValue.length < config.commit.header.minLength
+        || normalizedValue.length > config.commit.header.maxLength
+      ) {
+        return `Keep the description between ${config.commit.header.minLength} and ${config.commit.header.maxLength} characters.`
       }
 
       return undefined
@@ -69,17 +64,17 @@ export async function promptForCommitMessage (
     cancelCommand('Commit cancelled.')
   }
 
-  const body = await multiline({
+  const body = config.commit.body.enabled ? await multiline({
     message: 'Body (optional)',
     placeholder: 'Explain what changed and why',
-  })
+  }) : undefined
 
   if (isCancel(body)) {
     cancelCommand('Commit cancelled.')
   }
 
   const header = buildCommitHeader(type, scope, description)
-  const normalizedBody = body.trim()
+  const normalizedBody = body?.trim()
 
   const shouldCommit = await confirm({
     message: normalizedBody
@@ -94,7 +89,7 @@ export async function promptForCommitMessage (
 
   return {
     header,
-    body: normalizedBody ?? undefined,
+    body: normalizedBody,
   }
 }
 

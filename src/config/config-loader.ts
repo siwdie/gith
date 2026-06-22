@@ -2,7 +2,7 @@ import { log } from '@clack/prompts'
 import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 
-import type { GithConfig } from '~/config/config.types.js'
+import type { GithConfig, GithConfigPartial } from '~/config/config.types.js'
 import type { ResultType } from '~utils/result.js'
 
 import { githConfigPartialSchema, githConfigSchema } from '~/config/config.types.js'
@@ -21,7 +21,7 @@ export async function loadConfig (
 
   try {
     const fileContent = await readFile(configPath, 'utf8')
-    const jsonResult = parseToTypedJson<Partial<GithConfig>>(fileContent)
+    const jsonResult = parseToTypedJson<unknown>(fileContent)
 
     if (jsonResult.error) {
       log.warn(`Error reading config: ${jsonResult.error.message}. — using defaults \n`)
@@ -39,22 +39,32 @@ export async function loadConfig (
   }
 }
 
-function mergeConfig (config: Partial<GithConfig>): ResultType<GithConfig> {
-  const merged = {
-    defaultBranch: config.defaultBranch ?? DEFAULT_GITH_CONFIG.defaultBranch,
-    branchTypes: config.branchTypes ?? DEFAULT_GITH_CONFIG.branchTypes,
-    commitTypes: config.commitTypes ?? DEFAULT_GITH_CONFIG.commitTypes,
-  }
+function mergeConfig (config: GithConfigPartial): ResultType<GithConfig> {
+  const minLength = config.commit?.header?.minLength ?? DEFAULT_GITH_CONFIG.commit.header.minLength
+  const maxLength = config.commit?.header?.maxLength ?? DEFAULT_GITH_CONFIG.commit.header.maxLength
 
-  const parsed = githConfigSchema.safeParse(merged)
-
-  if (!parsed.success) {
+  if (minLength > maxLength) {
     return createErrorResult(new Error(
-      parsed.error.issues
-        .map(i => `${i.path.join('.')}: ${i.message}`)
-        .join('\n'),
+      `commit.header.minLength (${minLength}) cannot be greater than commit.header.maxLength (${maxLength})`
     ))
   }
 
-  return createDataResult(parsed.data)
+  const mergedConfig = {
+    defaultBranch: config.defaultBranch ?? DEFAULT_GITH_CONFIG.defaultBranch,
+    branchTypes: config.branchTypes ?? DEFAULT_GITH_CONFIG.branchTypes,
+    commitTypes: config.commitTypes ?? DEFAULT_GITH_CONFIG.commitTypes,
+    commit: {
+      header: {
+        minLength,
+        maxLength,
+      },
+      body: {
+        enabled: config.commit?.body?.enabled ?? DEFAULT_GITH_CONFIG.commit.body.enabled,
+        maxLength: config.commit?.body?.maxLength ?? DEFAULT_GITH_CONFIG.commit.body.maxLength,
+      }
+    },
+  } satisfies GithConfig
+
+
+  return safeParse(githConfigSchema, mergedConfig)
 }

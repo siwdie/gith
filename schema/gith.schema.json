@@ -28,6 +28,50 @@
       "items": {
         "$ref": "#/definitions/selectOption"
       }
+    },
+    "commit": {
+      "type": "object",
+      "description": "Configuration for the commit command",
+      "additionalProperties": false,
+      "properties": {
+        "header": {
+          "type": "object",
+          "description": "Constraints for the commit header (type + scope + description)",
+          "additionalProperties": false,
+          "properties": {
+            "minLength": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Minimum character length for the short description",
+              "default": 10
+            },
+            "maxLength": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Maximum character length for the short description",
+              "default": 72
+            }
+          }
+        },
+        "body": {
+          "type": "object",
+          "description": "Configuration for the commit body prompt",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "Whether to prompt for a commit body",
+              "default": true
+            },
+            "maxLength": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Maximum character length for the commit body",
+              "default": 500
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
