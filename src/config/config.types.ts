@@ -6,7 +6,7 @@ import { zBoolean, zNumberPositive, zString, zStringOptional } from '~/utils/zod
 
 export const githSelectOptionSchema = z.object({
   value: zString,
-  label: zString,
+  label: zStringOptional,
   hint: zStringOptional,
 })
 

@@ -79,7 +79,7 @@
       "type": "object",
       "description": "An option shown in select prompts",
       "additionalProperties": false,
-      "required": ["value", "label"],
+      "required": ["value"],
       "properties": {
         "value": {
           "type": "string",
