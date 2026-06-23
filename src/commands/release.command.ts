@@ -64,7 +64,7 @@ export function createBranchReleaseCommand (): Command {
       const tagResult = await createTag(tag, `Release ${tag}`)
 
 
-      spinnerService.stop()
+      spinnerService.clear()
 
       if (tagResult.error) {
         cancelCommand(tagResult.error.message)

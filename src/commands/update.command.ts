@@ -41,13 +41,13 @@ export function createBranchUpdateCommand (config: GithConfig): Command {
           throw new Error(rebaseResult.error.message)
         }
 
-        spinnerService.stop()
+        spinnerService.clear()
 
         outro(`Updated branch ${currentBranchResult.data} on top of ${options.remote}/${baseBranch}. \n\n` +
         'If the branch was already pushed, you may need to push with --force-with-lease.')
 
       } catch (error) {
-        spinnerService.stop()
+        spinnerService.clear()
 
         const message = error instanceof Error ? error.message : 'Unknown error'
         outro(message)
