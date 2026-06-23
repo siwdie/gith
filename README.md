@@ -66,18 +66,33 @@ Overwrite an existing config file with:
 gith init --force
 ```
 
+### JSON Schema
+
+`gith.config.json` ships with a JSON Schema for editor autocompletion and validation. Add the `$schema` field to your config file to enable it:
+
+```json
+{
+  "$schema": "https://unpkg.com/@siwdie/gith/schema/gith.schema.json"
+}
+```
+
 ### Supported fields
 
 | Field | Type | Description |
 |---|---|---|
 | `defaultBranch` | `string` | Default base branch for commands like `branch update` and `branch squash`. |
-| `branchTypes` | `Array<{ value, label, hint? }>` | Branch types shown in `branch create`. |
-| `commitTypes` | `Array<{ value, label, hint? }>` | Commit types shown in `branch commit`. |
+| `branchTypes` | `Array<{ value, label?, hint? }>` | Branch types shown in `branch create`. |
+| `commitTypes` | `Array<{ value, label?, hint? }>` | Commit types shown in `branch commit`. |
+| `commit.header.minLength` | `number` | Minimum character length for the commit short description. |
+| `commit.header.maxLength` | `number` | Maximum character length for the commit short description. |
+| `commit.body.enabled` | `boolean` | Whether to prompt for a commit body. Defaults to `true`. |
+| `commit.body.maxLength` | `number` | Maximum character length for the commit body. |
 
 ### Default config
 
 ```json
 {
+  "$schema": "https://unpkg.com/@siwdie/gith/schema/gith.schema.json",
   "defaultBranch": "main",
   "branchTypes": [
     {
@@ -122,7 +137,17 @@ gith init --force
       "label": "chore",
       "hint": "Maintenance tasks"
     }
-  ]
+  ],
+  "commit": {
+    "header": {
+      "minLength": 10,
+      "maxLength": 72
+    },
+    "body": {
+      "enabled": true,
+      "maxLength": 500
+    }
+  }
 }
 ```
 
