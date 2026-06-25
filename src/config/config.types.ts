@@ -1,7 +1,10 @@
 import z from 'zod'
 
-import { zBoolean, zNumberPositive, zString, zStringOptional } from '~/utils/zod.js'
+import { zBooleanOrFalse, zNumberPositive, zString, zStringOptional } from '~/utils/zod.js'
 
+
+
+export const githMonorepoSchema = z.object({ type: z.enum(['pnpm', 'yarn']) })
 
 
 export const githSelectOptionSchema = z.object({
@@ -15,18 +18,37 @@ export const githCommitHeaderSchema = z.object({
   maxLength: zNumberPositive,
 })
 
-export const githCommitBodySchema = z.object({
-  enabled: zBoolean,
-  maxLength: zNumberPositive,
-})
+export const githCommitBodySchema = z.union([
+  z.literal(true),
+  z.literal(false),
+  z.object({
+    maxLength: zNumberPositive,
+    required: zBooleanOrFalse,
+  }).partial(),
+])
+
+export const githScopeSchema = z.discriminatedUnion('type', [
+  z.object({
+    type: z.literal('text'),
+    placeholder: zStringOptional,
+    required: zBooleanOrFalse,
+  }),
+  z.object({
+    type: z.literal('select'),
+    options: z.array(githSelectOptionSchema),
+    required: zBooleanOrFalse,
+  }),
+])
 
 export const githConfigSchema = z.object({
+  monorepo: githMonorepoSchema.optional(),
   defaultBranch: zString,
   branchTypes: z.array(githSelectOptionSchema),
   commitTypes: z.array(githSelectOptionSchema),
+  scope: githScopeSchema.optional(),
   commit: z.object({
     header: githCommitHeaderSchema,
-    body: githCommitBodySchema,
+    body: githCommitBodySchema.optional(),
   }),
 })
 
@@ -36,9 +58,11 @@ export const githConfigPartialSchema = githConfigSchema.extend({
   commitTypes: z.array(githSelectOptionSchema).optional(),
   commit: z.object({
     header: githCommitHeaderSchema.partial().optional(),
-    body: githCommitBodySchema.partial().optional(),
+    body: githCommitBodySchema.optional(),
   }).optional(),
 })
+
+export type GithMonorepoType = z.infer<typeof githMonorepoSchema>['type']
 
 export type GithSelectOption = z.infer<typeof githSelectOptionSchema>
 export type GithCommitHeader = z.infer<typeof githCommitHeaderSchema>

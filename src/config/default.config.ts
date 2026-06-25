@@ -9,10 +9,6 @@ export const DEFAULT_GITH_CONFIG: GithConfig = {
       minLength: 10,
       maxLength: 72,
     },
-    body: {
-      enabled: true,
-      maxLength: 500,
-    },
   },
   branchTypes: [
     {

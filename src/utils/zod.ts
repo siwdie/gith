@@ -16,6 +16,7 @@ export const zNumberPositiveOptional = zNumberPositive.optional()
 
 export const zBoolean = z.boolean().default(false)
 export const zBooleanOptional = z.boolean().optional()
+export const zBooleanOrFalse = z.boolean().nullish().transform(v => v ?? false)
 
 
 export function safeParse<T> (schema: ZodType<T>, data: unknown): ResultType<T> {
