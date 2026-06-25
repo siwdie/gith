@@ -8,8 +8,8 @@ import {
 } from '@clack/prompts'
 import { Command } from 'commander'
 
-import type { GithConfig } from '~/config/config.types.js'
 
+import { getConfigOrCancel } from '~/commands/_helper/get-config-or-cancel.js'
 import { promptForCommitMessage } from '~/commands/_helper/prompt-commit.js'
 import { cancelCommand } from '~/utils/cancel-command.js'
 import {
@@ -22,13 +22,15 @@ import {
 
 
 
-export function createBranchSquashCommand (config: GithConfig): Command {
+export function createBranchSquashCommand (): Command {
   const command = new Command('squash')
 
   command
     .description('Preview and squash branch commits into a single commit')
     .option('--base <branch>', 'Base branch to compare against')
     .action(async (options: { base?: string }) => {
+      const config = await getConfigOrCancel()
+
       // TODO: check if branch exists
       const baseBranch = options.base ?? config.defaultBranch
 

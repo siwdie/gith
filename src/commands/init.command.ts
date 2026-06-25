@@ -5,6 +5,7 @@ import { join } from 'node:path'
 
 import { DEFAULT_GITH_CONFIG } from '~/config/default.config.js'
 import { cancelCommand } from '~/utils/cancel-command.js'
+import { checkIfGitRepository } from '~/utils/check-if-git-repository.js'
 import { fileExists } from '~/utils/file.js'
 
 
@@ -21,6 +22,8 @@ export function createInitCommand (): Command {
     .description('Generate a gith.config.json with default values')
     .option('--force', 'Overwrite existing gith.config.json without prompt')
     .action(async (options: InitCommandOptions) => {
+      await checkIfGitRepository()
+
       const cwd = process.cwd()
       const configPath = join(cwd, 'gith.config.json')
 

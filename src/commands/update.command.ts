@@ -1,13 +1,13 @@
 import { outro, spinner } from '@clack/prompts'
 import { Command } from 'commander'
 
-import type { GithConfig } from '~/config/config.types.js'
 
+import { getConfigOrCancel } from '~/commands/_helper/get-config-or-cancel.js'
 import { fetchBranch, getCurrentBranchName, rebaseCurrentBranchOnto } from '~utils/git.js'
 
 
 
-export function createBranchUpdateCommand (config: GithConfig): Command {
+export function createBranchUpdateCommand (): Command {
   const command = new Command('update')
 
   command
@@ -15,6 +15,8 @@ export function createBranchUpdateCommand (config: GithConfig): Command {
     .option('-b, --base <branch>', 'Base branch name to rebase onto')
     .option('-r, --remote <remote>', 'Remote that contains the main branch', 'origin')
     .action(async (options: { base?: string, remote: string }) => {
+      const config = await getConfigOrCancel()
+
       const spinnerService = spinner()
 
       try {

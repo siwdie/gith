@@ -7,9 +7,9 @@ import {
 } from '@clack/prompts'
 import { Command } from 'commander'
 
-
 import { buildCommitHeader } from '~/commands/_helper/prompt-commit.js'
 import { cancelCommand } from '~/utils/cancel-command.js'
+import { checkIfGitRepository } from '~/utils/check-if-git-repository.js'
 import { commitWithMessage, createTag, hasStagedChanges } from '~utils/git.js'
 
 
@@ -20,6 +20,8 @@ export function createBranchReleaseCommand (): Command {
   command
     .description('Create a release commit and tag for the given version')
     .action(async () => {
+      await checkIfGitRepository()
+
       intro('Create release')
 
       const stagedResult = await hasStagedChanges()

@@ -1,6 +1,5 @@
 import { Command } from 'commander'
 
-import type { GithConfig } from '~/config/config.types.js'
 
 import { createBranchCommitCommand } from '~/commands/commit.command.js'
 import { createBranchCreateCommand } from '~/commands/create.command.js'
@@ -11,18 +10,18 @@ import { createBranchUpdateCommand } from '~/commands/update.command.js'
 
 
 
-export function createBranchCommandGroup (config: GithConfig): Command {
+export function createBranchCommandGroup (): Command {
   const command = new Command('branch')
 
   command
     .description('Manage Git branches')
 
   command
-    .addCommand(createBranchCreateCommand(config))
-    .addCommand(createBranchUpdateCommand(config))
-    .addCommand(createBranchCommitCommand(config))
-    .addCommand(createBranchSquashCommand(config))
-    .addCommand(createBranchRenameCommand(config))
+    .addCommand(createBranchCreateCommand())
+    .addCommand(createBranchUpdateCommand())
+    .addCommand(createBranchCommitCommand())
+    .addCommand(createBranchSquashCommand())
+    .addCommand(createBranchRenameCommand())
     .addCommand(createBranchReleaseCommand())
 
   return command
