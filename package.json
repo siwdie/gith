@@ -27,7 +27,7 @@
   },
   "scripts": {
     "build": "rm -rf dist && tsup",
-    "build:binaries": "npx @yao-pkg/pkg dist/cli.cjs --targets node24-linux-x64,node24-macos-arm64,node24-win-x64 --output binaries/gith --fallback-to-source && node scripts/rename-binary-files.mjs",
+    "build:binaries": "npx @yao-pkg/pkg dist/cli.cjs --targets node24-linux-x64,node24-macos-arm64,node24-win-x64 --output binaries/gith-v$(node -p \"require('./package.json').version\") --fallback-to-source",
     "build:all": "pnpm build && pnpm build:binaries",
     "dev": "pnpm build && node ./dist/cli.mjs",
     "lint": "eslint .",
