@@ -1,16 +1,25 @@
 import {
   intro,
   isCancel,
+  note,
   outro,
   spinner,
   text
 } from '@clack/prompts'
 import { Command } from 'commander'
 
+import type { GithConfig } from '~/config/config.types.js'
+
+import { getConfigOrCancel } from '~/commands/_helper/get-config-or-cancel.js'
 import { buildCommitHeader } from '~/commands/_helper/prompt-commit.js'
 import { cancelCommand } from '~/utils/cancel-command.js'
-import { checkIfGitRepository } from '~/utils/check-if-git-repository.js'
-import { commitWithMessage, createTag, hasStagedChanges } from '~utils/git.js'
+import {
+  commitWithMessage,
+  createTag,
+  getCurrentBranchName,
+  getStagedFilesScopeList,
+  hasStagedChanges
+} from '~/utils/git.js'
 
 
 
@@ -20,7 +29,13 @@ export function createBranchReleaseCommand (): Command {
   command
     .description('Create a release commit and tag for the given version')
     .action(async () => {
-      await checkIfGitRepository()
+      const config = await getConfigOrCancel()
+
+      const branchName = await getCurrentBranchName()
+
+      if (branchName.data !== config.defaultBranch)
+        cancelCommand(`You must be in ${config.defaultBranch} branch to release a new version.`)
+
 
       intro('Create release')
 
@@ -30,9 +45,11 @@ export function createBranchReleaseCommand (): Command {
         cancelCommand(stagedResult.error.message)
       }
 
-      if (!stagedResult.data) {
+      if (!stagedResult.data)
         cancelCommand('No staged changes found. Stage files first or run the command with --all.')
-      }
+
+
+      const scope = await getScope(config)
 
       const version = await text({
         message: 'Version to release',
@@ -43,18 +60,15 @@ export function createBranchReleaseCommand (): Command {
         },
       })
 
-      if (isCancel(version)) {
-        cancelCommand('Operation cancelled.')
-      }
+      if (isCancel(version)) cancelCommand('Operation cancelled.')
 
       const spinnerService = spinner()
-
       spinnerService.start('Creating release commit...')
 
-      const tag = `v${version}`
+      const tag = scope ? `${scope}-v${version}` : `v${version}`
 
       const commitResult = await commitWithMessage(
-        buildCommitHeader('release', '', tag),
+        buildCommitHeader('release', scope, `Version ${version}`),
       )
 
       if (commitResult.error !== null) {
@@ -65,15 +79,27 @@ export function createBranchReleaseCommand (): Command {
 
       const tagResult = await createTag(tag, `Release ${tag}`)
 
-
       spinnerService.clear()
 
       if (tagResult.error) {
         cancelCommand(tagResult.error.message)
       }
 
-      outro(`Release ${tag} created.\n Push with: git push origin ${tag}`)
+      outro(`Release ${tag} created.\nPush with: git push && git push origin ${tag}`)
     })
 
   return command
+}
+
+async function getScope (config: GithConfig): Promise<string> {
+  if (!config.monorepo) return ''
+
+  const scopeList = await getStagedFilesScopeList(config)
+
+  if (scopeList.length > 1) {
+    note(scopeList.join(', '), 'Staged files belong to multiple scopes:')
+    cancelCommand('Please, release each scope separately.', 0)
+  }
+
+  return scopeList[0] === 'root' ? '' : scopeList[0]!
 }
