@@ -1,11 +1,12 @@
 import { defineConfig } from 'tsup'
-
+import pkg from './package.json'
 
 
 export default defineConfig({
   entry: ['src/cli.ts'],
-  format: ['esm'],
+  format: ['esm', 'cjs'],
   config: './tsconfig.json',
+  noExternal: Object.keys(pkg.dependencies),
   clean: true,
   splitting: false,
   sourcemap: false,
