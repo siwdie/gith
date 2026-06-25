@@ -29,6 +29,57 @@
         "$ref": "#/definitions/selectOption"
       }
     },
+    "scope": {
+      "description": "Scope prompt configuration for non-monorepo projects. When omitted, scope is disabled",
+      "oneOf": [
+        {
+          "type": "object",
+          "description": "Free text scope input",
+          "additionalProperties": false,
+          "required": ["type"],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["text"]
+            },
+            "placeholder": {
+              "type": "string",
+              "description": "Placeholder text shown in the input",
+              "default": "branch"
+            },
+            "required": {
+              "type": "boolean",
+              "description": "Whether scope is required",
+              "default": false
+            }
+          }
+        },
+        {
+          "type": "object",
+          "description": "Select scope from a list of options",
+          "additionalProperties": false,
+          "required": ["type", "options"],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["select"]
+            },
+            "options": {
+              "type": "array",
+              "description": "List of scope options",
+              "items": {
+                "$ref": "#/definitions/selectOption"
+              }
+            },
+            "required": {
+              "type": "boolean",
+              "description": "Whether scope is required",
+              "default": false
+            }
+          }
+        }
+      ]
+    },
     "commit": {
       "type": "object",
       "description": "Configuration for the commit command",
@@ -54,22 +105,44 @@
           }
         },
         "body": {
-          "type": "object",
           "description": "Configuration for the commit body prompt",
-          "additionalProperties": false,
-          "properties": {
-            "enabled": {
+          "oneOf": [
+            {
               "type": "boolean",
-              "description": "Whether to prompt for a commit body",
-              "default": true
+              "description": "Enable or disable the commit body prompt"
             },
-            "maxLength": {
-              "type": "integer",
-              "minimum": 1,
-              "description": "Maximum character length for the commit body",
-              "default": 500
+            {
+              "type": "object",
+              "description": "Enable and configure the commit body prompt",
+              "additionalProperties": false,
+              "properties": {
+                "required": {
+                  "type": "boolean",
+                  "description": "Whether to prompt for a commit body",
+                  "default": false
+                },
+                "maxLength": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "description": "Maximum character length for the commit body",
+                  "default": 200
+                }
+              }
             }
-          }
+          ]
+        }
+      }
+    },
+    "monorepo": {
+      "type": "object",
+      "description": "Monorepo settings. When defined, gith will automatically detect workspace packages and enforce single-scope commits",
+      "additionalProperties": false,
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Package manager or build tool used to manage the monorepo workspaces",
+          "enum": ["pnpm", "yarn"]
         }
       }
     }

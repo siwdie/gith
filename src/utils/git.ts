@@ -1,7 +1,11 @@
+import { log } from '@clack/prompts'
 import { execa } from 'execa'
 
+import type { GithConfig } from '~/config/config.types.js'
 import type { ResultType } from '~utils/result.js'
 
+import { cancelCommand } from '~/utils/cancel-command.js'
+import { getWorkspacePackages } from '~/utils/monorepo.js'
 import { createDataResult, createErrorResult } from '~utils/result.js'
 
 
@@ -171,4 +175,29 @@ export async function getCommitsSince (
     })
 
   return createDataResult(commits)
+}
+
+export async function getStagedFilesScopeList (
+  config: GithConfig,
+  options?: RunGitOptions,
+): Promise<Array<string>> {
+  const packageList = await getWorkspacePackages(config.monorepo?.type)
+
+  if (!packageList.length) {
+    log.error(`No packages found for monorepo type "${config.monorepo!.type}".\nCheck your monorepo.type in gith.config.json or remove the monorepo config.\n`)
+    cancelCommand('Commit cancelled.')
+  }
+
+  const result = await runGit(['diff', '--cached', '--name-only'], options)
+
+  if (result.error) return []
+
+  const stagedFiles = result.data.split('\n').filter(Boolean)
+
+  const matchedPackages = new Set(
+    stagedFiles
+      .map(file => packageList.find(pkg => file.startsWith(`${pkg.location}/`))?.name ?? 'root')
+  )
+
+  return Array.from(matchedPackages)
 }

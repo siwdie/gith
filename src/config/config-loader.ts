@@ -50,18 +50,17 @@ function mergeConfig (config: GithConfigPartial): ResultType<GithConfig> {
   }
 
   const mergedConfig = {
+    monorepo: config.monorepo,
     defaultBranch: config.defaultBranch ?? DEFAULT_GITH_CONFIG.defaultBranch,
     branchTypes: config.branchTypes ?? DEFAULT_GITH_CONFIG.branchTypes,
     commitTypes: config.commitTypes ?? DEFAULT_GITH_CONFIG.commitTypes,
+    scope: config.scope,
     commit: {
       header: {
         minLength,
         maxLength,
       },
-      body: {
-        enabled: config.commit?.body?.enabled ?? DEFAULT_GITH_CONFIG.commit.body.enabled,
-        maxLength: config.commit?.body?.maxLength ?? DEFAULT_GITH_CONFIG.commit.body.maxLength,
-      }
+      body: config.commit?.body
     },
   } satisfies GithConfig
 
