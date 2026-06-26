@@ -67,14 +67,13 @@ export async function promptForCommitMessage (
       validate: (value) => {
         if (typeof config.commit.body === 'object') {
           const maxLength = config.commit.body?.maxLength
-
           const normalizedValue = value?.trim()
 
           if (config.commit.body?.required && !normalizedValue) {
             return 'Body is required.'
           }
 
-          if (maxLength && (normalizedBody?.length ?? 0) > maxLength) {
+          if (maxLength && (normalizedValue?.length ?? 0) > maxLength) {
             return `Keep body below ${config.commit.body?.maxLength} characters.`
           }
         }
