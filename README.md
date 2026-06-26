@@ -21,7 +21,22 @@ npm install -D gith
 Initialize the project config:
 
 ```bash
-gith init
+npx gith init
+```
+
+### Standalone installation
+
+#### macOS
+
+```bash
+brew tap siwdie/gith https://github.com/siwdie/gith
+brew install gith
+```
+
+If Homebrew does not resolve the short name on your system, use:
+
+```bash
+brew install siwdie/gith/gith
 ```
 
 ## What it does

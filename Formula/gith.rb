@@ -6,7 +6,7 @@ class Gith < Formula
 
   on_arm do
     url "https://github.com/siwdie/gith/releases/download/v1.7.0/gith-v1.7.0-macos-arm64"
-    sha256 "65a50a72597c02ff7ca5aae8f7e53adb64882f2f4f7630f306a7fe392097cf3a"
+    sha256 "e79a78616be70e2a1f722323b660e53a1f45a548b47cb605035670ae43bf05b0"
   end
 
   def install
