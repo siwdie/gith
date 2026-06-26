@@ -1,6 +1,6 @@
 {
   "name": "@siwdie/gith",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "description": "Configurable git workflow CLI with branch creation, rebase, commit, and squash helpers",
   "author": {
     "name": "siwdie"
