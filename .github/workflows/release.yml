@@ -48,9 +48,11 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            targets: node24-linux-x64,node24-win-x64
+            target: node24-linux-x64
+          - os: ubuntu-latest
+            target: node24-win-x64
           - os: macos-latest
-            targets: node24-macos-arm64
+            target: node24-macos-arm64
     runs-on: ${{ matrix.os }}
     needs: build
     if: github.event.release.target_commitish == 'main'
@@ -80,7 +82,22 @@ jobs:
       - name: Build binaries
         run: |
           VERSION=$(node -p "require('./package.json').version")
-          npx @yao-pkg/pkg dist/cli.cjs --targets ${{ matrix.targets }} --output binaries/gith-v${VERSION} --fallback-to-source
+          TARGET="${{ matrix.target }}"
+
+          case "$TARGET" in
+            *linux*x64*)   NAME="gith-v${VERSION}-linux-x64" ;;
+            *macos*arm64*) NAME="gith-v${VERSION}-macos-arm64" ;;
+            *win*x64*)     NAME="gith-v${VERSION}-win-x64.exe" ;;
+            *)
+              echo "Unsupported target: $TARGET"
+              exit 1
+              ;;
+          esac
+
+          npx @yao-pkg/pkg dist/cli.cjs \
+            --targets "$TARGET" \
+            --output "binaries/$NAME" \
+            --fallback-to-source
 
       - name: Upload binaries to release
         run: gh release upload ${{ github.event.release.tag_name }} binaries/* --clobber
