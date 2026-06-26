@@ -1,38 +1,49 @@
 {
   "compilerOptions": {
     "target": "ES2024",
-    "lib": ["ES2024"],
+    "lib": [
+      "ES2024"
+    ],
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
-
     "rootDir": "./src",
     "outDir": "./dist",
-
     "paths": {
-      "~/*": ["./src/*"],
-      "~commands/*": ["./src/commands/*"],
-      "~types/*": ["./src/types/*"],
-      "~utils/*": ["./src/utils/*"]
+      "~/*": [
+        "./src/*"
+      ],
+      "~commands/*": [
+        "./src/commands/*"
+      ],
+      "~types/*": [
+        "./src/types/*"
+      ],
+      "~utils/*": [
+        "./src/utils/*"
+      ]
     },
-
     "strict": true,
     "noImplicitOverride": true,
     "noUncheckedIndexedAccess": true,
     "noFallthroughCasesInSwitch": true,
-
     "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
-
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
     "moduleDetection": "force",
-
     "skipLibCheck": true,
     "esModuleInterop": true,
-
-    "types": ["node"]
+    "types": [
+      "node"
+    ]
   },
-  "include": ["src/**/*.ts"],
-  "exclude": ["dist", "node_modules"]
+  "include": [
+    "src/**/*.ts",
+    "scripts"
+  ],
+  "exclude": [
+    "dist",
+    "node_modules"
+  ]
 }

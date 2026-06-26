@@ -26,14 +26,15 @@
     "node": ">=24"
   },
   "scripts": {
+    "dev": "pnpm build && node ./dist/cli.mjs",
     "build": "rm -rf dist && tsup",
     "build:binaries": "npx @yao-pkg/pkg dist/cli.cjs --targets node24-linux-x64,node24-macos-arm64,node24-win-x64 --output binaries/gith-v$(node -p \"require('./package.json').version\") --fallback-to-source",
     "build:all": "pnpm build && pnpm build:binaries",
-    "dev": "pnpm build && node ./dist/cli.mjs",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "check": "tsc --noEmit",
-    "prepare": "pnpm build"
+    "prepare": "pnpm build",
+    "generate:brew": "node scripts/brew.mjs"
   },
   "dependencies": {
     "@clack/prompts": "^1.5.1",
