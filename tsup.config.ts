@@ -1,10 +1,9 @@
 import { defineConfig } from 'tsup'
 import pkg from './package.json'
 
-
 export default defineConfig({
   entry: ['src/cli.ts'],
-  format: ['esm', 'cjs'],
+  format: ['cjs'],
   config: './tsconfig.json',
   noExternal: Object.keys(pkg.dependencies),
   clean: true,
@@ -12,9 +11,9 @@ export default defineConfig({
   sourcemap: false,
   dts: false,
   minify: true,
-  outExtension ({format}) {
+  outExtension () {
     return {
-      js: (format === 'esm') ? '.mjs' : '.cjs'
+      js: '.cjs',
     }
   },
-});
+})

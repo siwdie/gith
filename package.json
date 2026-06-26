@@ -13,7 +13,7 @@
   "packageManager": "pnpm@11.6.0",
   "type": "module",
   "bin": {
-    "gith": "./dist/cli.mjs"
+    "gith": "./dist/cli.cjs"
   },
   "exports": {
     "./schema": "./schema/gith.schema.json"
@@ -26,7 +26,6 @@
     "node": ">=24"
   },
   "scripts": {
-    "dev": "pnpm build && node ./dist/cli.mjs",
     "build": "rm -rf dist && tsup",
     "build:binaries": "npx @yao-pkg/pkg dist/cli.cjs --targets node24-linux-x64,node24-macos-arm64,node24-win-x64 --output binaries/gith-v$(node -p \"require('./package.json').version\") --fallback-to-source",
     "build:all": "pnpm build && pnpm build:binaries",
