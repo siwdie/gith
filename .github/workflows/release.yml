@@ -82,9 +82,6 @@ jobs:
           VERSION=$(node -p "require('./package.json').version")
           npx @yao-pkg/pkg dist/cli.cjs --targets ${{ matrix.targets }} --output binaries/gith-v${VERSION} --fallback-to-source
 
-      - name: Rename binaries
-        run: node scripts/rename-binaries.mjs
-
       - name: Upload binaries to release
         run: gh release upload ${{ github.event.release.tag_name }} binaries/* --clobber
         env:
