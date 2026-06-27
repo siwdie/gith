@@ -1,24 +1,22 @@
-<h1 align="center" style="margin: 0; font-size: 72px; line-height: 1;">
-  gith
-</h1>
+<!-- trunk-ignore-all(markdownlint/MD033) -->
+<!-- trunk-ignore(markdownlint/MD041) -->
 
-<p align="center" style="margin: 10px 0 0;">
-  <strong>Small Git workflow CLI for branches, conventional commits, rebases, and squash flows.</strong>
-</p>
-<p align="center" style="margin: 20px 0 0;">
-  <a href="https://github.com/siwdie/gith/releases">
-    <img src="https://img.shields.io/github/v/release/siwdie/gith" alt="Latest release" />
-  </a>
-  <a href="https://github.com/siwdie/gith/actions">
-    <img src="https://github.com/siwdie/gith/actions/workflows/release.yml/badge.svg?event=release" alt="Build status" />
-  </a>
-  <a href="https://www.npmjs.com/package/gith">
-    <img src="https://img.shields.io/npm/v/@siwdie/gith" alt="npm version" />
-  </a>
-  <a href="https://github.com/siwdie/gith/actions">
-    <img src="https://github.com/siwdie/gith/actions/workflows/main.yml/badge.svg?branch=main&event=push" alt="Build status" />
-  </a>
-</p>
+<div align="center">
+  <h2 style="font-size: 56px;">
+    gith
+  </h2>
+
+  <h3 style="font-size: 18px;">
+    Small Git workflow CLI for branches, conventional commits, rebases, and squash flows.
+  </h3>
+
+[![Latest release](https://img.shields.io/github/v/release/siwdie/gith)](https://github.com/siwdie/gith/releases)
+[![Main build status](https://github.com/siwdie/gith/actions/workflows/main.yml/badge.svg?branch=main&event=push)](https://github.com/siwdie/gith/actions/workflows/main.yml)
+[![Release status](https://github.com/siwdie/gith/actions/workflows/release.yml/badge.svg?event=release)](https://github.com/siwdie/gith/actions/workflows/release.yml)
+[![npm version](https://img.shields.io/npm/v/@siwdie/gith)](https://www.npmjs.com/package/@siwdie/gith)
+[![License](https://img.shields.io/badge/license-AGPL--3.0-blue)](./LICENSE)
+
+</div>
 
 
 ## Quick start
