@@ -18,6 +18,13 @@
 
 </div>
 
+<p align="center">
+  <a href="#quick-start">Quick start</a> ·
+  <a href="#what-it-does">What it does</a> ·
+  <a href="#commands">Commands</a> ·
+  <a href="#configuration">Configuration</a> ·
+</p>
+
 
 ## Quick start
 
