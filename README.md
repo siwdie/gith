@@ -1,14 +1,25 @@
-# gith
+<h1 align="center" style="margin: 0; font-size: 72px; line-height: 1;">
+  gith
+</h1>
 
-![Version](https://img.shields.io/github/v/release/siwdie/gith)
-![Node.js](https://img.shields.io/badge/node-%3E=24-339933?logo=nodedotjs&logoColor=white)
-![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
-![Commander](https://img.shields.io/badge/Commander.js-CLI-black)
-![Clack](https://img.shields.io/badge/%40clack%2Fprompts-interactive-f15bb5)
+<p align="center" style="margin: 10px 0 0;">
+  <strong>Small Git workflow CLI for branches, conventional commits, rebases, and squash flows.</strong>
+</p>
+<p align="center" style="margin: 20px 0 0;">
+  <a href="https://github.com/siwdie/gith/releases">
+    <img src="https://img.shields.io/github/v/release/siwdie/gith" alt="Latest release" />
+  </a>
+  <a href="https://github.com/siwdie/gith/actions">
+    <img src="https://github.com/siwdie/gith/actions/workflows/release.yml/badge.svg?event=release" alt="Build status" />
+  </a>
+  <a href="https://www.npmjs.com/package/gith">
+    <img src="https://img.shields.io/npm/v/@siwdie/gith" alt="npm version" />
+  </a>
+  <a href="https://github.com/siwdie/gith/actions">
+    <img src="https://github.com/siwdie/gith/actions/workflows/main.yml/badge.svg?branch=main&event=push" alt="Build status" />
+  </a>
+</p>
 
-`gith` is a small Git workflow CLI for creating branches, updating them from a base branch, writing conventional commits, and squashing branch history with a guided terminal experience.
-
-Built with `Commander.js` and `@clack/prompts`.
 
 ## Quick start
 
@@ -26,10 +37,10 @@ npx gith init
 
 ### Standalone installation
 
-#### macOS
+#### Homebrew (macOS and Linux)
 
 ```bash
-brew tap siwdie/gith https://github.com/siwdie/gith
+brew tap siwdie/gith
 brew install gith
 ```
 
@@ -38,6 +49,13 @@ If Homebrew does not resolve the short name on your system, use:
 ```bash
 brew install siwdie/gith/gith
 ```
+
+#### Supported Homebrew targets
+
+Homebrew installation is currently supported for:
+
+- macOS arm64
+- Linux x86_64
 
 ## What it does
 
@@ -83,88 +101,26 @@ gith init --force
 
 ### JSON Schema
 
-`gith.config.json` ships with a JSON Schema for editor autocompletion and validation. Add the `$schema` field to your config file to enable it:
-
-```json
-{
-  "$schema": "https://unpkg.com/@siwdie/gith/schema/gith.schema.json"
-}
-```
+`gith.config.json` ships with a JSON Schema for editor autocompletion and validation. The generated config already includes the `$schema` field, so your IDE only needs to trust that schema source to enable validation and completions.
 
 ### Supported fields
 
 | Field | Type | Description |
 |---|---|---|
-| `defaultBranch` | `string` | Default base branch for commands like `branch update` and `branch squash`. |
-| `branchTypes` | `Array<{ value, label?, hint? }>` | Branch types shown in `branch create`. |
-| `commitTypes` | `Array<{ value, label?, hint? }>` | Commit types shown in `branch commit`. |
-| `commit.header.minLength` | `number` | Minimum character length for the commit short description. |
-| `commit.header.maxLength` | `number` | Maximum character length for the commit short description. |
-| `commit.body.enabled` | `boolean` | Whether to prompt for a commit body. Defaults to `true`. |
+| `defaultBranch` | `string` | Default base branch for new branches. |
+| `monorepo.type` | `"pnpm" \| "yarn"` | Package manager or build tool used to manage the monorepo workspaces. |
+| `branchTypes` | `Array<{ value, label?, hint? }>` | Available branch types for the branch creation command. |
+| `commitTypes` | `Array<{ value, label?, hint? }>` | Available commit types for the commit command. |
+| `scope` | `object \| undefined` | Scope prompt configuration for non-monorepo projects. When omitted, scope is disabled. |
+| `scope.type` | `"text" \| "select"` | Scope prompt mode. |
+| `scope.placeholder` | `string` | Placeholder text shown in the input. Only used when `scope.type` is `text`. |
+| `scope.required` | `boolean` | Whether scope is required. |
+| `scope.options` | `Array<{ value, label?, hint? }>` | List of scope options. Only used when `scope.type` is `select`. |
+| `commit.header.minLength` | `number` | Minimum character length for the short description. |
+| `commit.header.maxLength` | `number` | Maximum character length for the short description. |
+| `commit.body` | `boolean \| object` | Enable or configure the commit body prompt. |
+| `commit.body.required` | `boolean` | Whether to prompt for a commit body. |
 | `commit.body.maxLength` | `number` | Maximum character length for the commit body. |
-
-### Default config
-
-```json
-{
-  "$schema": "https://unpkg.com/@siwdie/gith/schema/gith.schema.json",
-  "defaultBranch": "main",
-  "branchTypes": [
-    {
-      "value": "feature",
-      "label": "feature",
-      "hint": "A new feature branch"
-    },
-    {
-      "value": "bugfix",
-      "label": "bugfix",
-      "hint": "A bug fix branch"
-    }
-  ],
-  "commitTypes": [
-    {
-      "value": "feat",
-      "label": "feat",
-      "hint": "A new feature"
-    },
-    {
-      "value": "fix",
-      "label": "fix",
-      "hint": "A bug fix"
-    },
-    {
-      "value": "docs",
-      "label": "docs",
-      "hint": "Documentation only changes"
-    },
-    {
-      "value": "refactor",
-      "label": "refactor",
-      "hint": "Code change without feature or fix"
-    },
-    {
-      "value": "test",
-      "label": "test",
-      "hint": "Add or update tests"
-    },
-    {
-      "value": "chore",
-      "label": "chore",
-      "hint": "Maintenance tasks"
-    }
-  ],
-  "commit": {
-    "header": {
-      "minLength": 10,
-      "maxLength": 72
-    },
-    "body": {
-      "enabled": true,
-      "maxLength": 500
-    }
-  }
-}
-```
 
 ## Typical workflow
 
