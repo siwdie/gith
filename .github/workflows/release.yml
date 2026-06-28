@@ -159,7 +159,7 @@ jobs:
 
       - name: Generate formula
         run: |
-          node scripts/generate-brew-formula.mjs \
+          node scripts/brew.mjs \
             --macosArm64BinaryFile="${MACOS_ARM64_BINARY_FILE}" \
             --macosArm64Sha256="${MACOS_ARM64_SHA256}" \
             --linuxX64BinaryFile="${LINUX_X64_BINARY_FILE}" \
