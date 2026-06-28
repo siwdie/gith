@@ -142,7 +142,7 @@
         "type": {
           "type": "string",
           "description": "Package manager or build tool used to manage the monorepo workspaces",
-          "enum": ["pnpm", "yarn"]
+          "enum": ["pnpm", "yarn", "cargo", "maven", "gradle"]
         }
       }
     }

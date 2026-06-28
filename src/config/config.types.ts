@@ -4,7 +4,7 @@ import { zBooleanOrFalse, zNumberPositive, zString, zStringOptional } from '~/ut
 
 
 
-export const githMonorepoSchema = z.object({ type: z.enum(['pnpm', 'yarn']) })
+export const githMonorepoSchema = z.object({ type: z.enum(['pnpm', 'yarn', 'cargo', 'maven', 'gradle']) })
 
 
 export const githSelectOptionSchema = z.object({
