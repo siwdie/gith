@@ -30,8 +30,8 @@ export const DEFAULT_GITH_CONFIG: GithConfig = {
       hint: 'A bug fix',
     },
     {
-      value: 'release',
-      hint: 'Release branch',
+      value: 'ci',
+      hint: 'CI workflows and automation changes',
     },
     {
       value: 'docs',
@@ -47,7 +47,7 @@ export const DEFAULT_GITH_CONFIG: GithConfig = {
     },
     {
       value: 'chore',
-      hint: 'Maintenance tasks',
+      hint: 'Project config and maintenance changes',
     },
   ],
 }
