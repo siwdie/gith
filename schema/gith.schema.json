@@ -133,6 +133,24 @@
         }
       }
     },
+    "release": {
+      "type": "object",
+      "description": "Configuration for release hooks",
+      "additionalProperties": false,
+      "properties": {
+        "hooks": {
+          "type": "object",
+          "description": "Shell commands executed during the release flow",
+          "additionalProperties": false,
+          "properties": {
+            "beforeCommit": {
+              "type": "string",
+              "description": "Shell command to run before creating the release commit. Supports placeholders like {{version}}, {{tag}}, {{scope}}, and {{branch}}"
+            }
+          }
+        }
+      }
+    },
     "monorepo": {
       "type": "object",
       "description": "Monorepo settings. When defined, gith will automatically detect workspace packages and enforce single-scope commits",
