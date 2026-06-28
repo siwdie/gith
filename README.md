@@ -121,6 +121,7 @@ Current features include:
 | `gith branch commit` | Create a guided conventional commit for the current branch. |
 | `gith branch commit --all` | Stage tracked changes and create a guided conventional commit. |
 | `gith branch squash` | Squash branch commits into a single commit once the working tree is clean. |
+| `gith branch release` | Create a release commit and tag for the given version. |
 | `gith branch --help` | Show help for branch-related commands. |
 
 ## Configuration
@@ -163,16 +164,26 @@ gith init --force
 | `commit.body` | `boolean \| object` | Enable or configure the commit body prompt. |
 | `commit.body.required` | `boolean` | Whether to prompt for a commit body. |
 | `commit.body.maxLength` | `number` | Maximum character length for the commit body. |
+| `release` | `object \| undefined` | Configuration for the release flow. |
+| `release.hooks` | `object \| undefined` | Shell commands executed during the release flow. |
+| `release.hooks.beforeCommit` | `string \| undefined` | Shell command to run before creating the release commit. Supports `{{version}}`, `{{tag}}`, `{{scope}}`, and `{{branch}}`. |
 
-## Typical workflow
+### Release hooks
 
-A common flow looks like this:
+You can run a shell command before the release commit is created.
 
-1. Run `gith init` once if you want project-specific defaults.
-2. Create a new branch with `gith branch create`.
-3. Commit changes with `gith branch commit`.
-4. Update the branch with `gith branch update`.
-5. Clean up the history with `gith branch squash`.
+```json
+{
+  "release": {
+    "hooks": {
+      "beforeCommit": "pnpm version {{version}} --no-git-tag-version && git add package.json"
+    }
+  }
+}
+```
+The hook runs before the release commit is created. If it exits with a non-zero status, the release is aborted.
+
+If the hook changes files, it must also stage them explicitly.
 
 ## Notes
 
