@@ -1,0 +1,94 @@
+name: Generate Homebrew Formula
+
+on:
+  workflow_call:
+    inputs:
+      tag_name:
+        required: true
+        type: string
+    secrets:
+      HOMEBREW_GITH_TOKEN:
+        required: true
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: Release tag
+        required: true
+        type: string
+
+jobs:
+  homebrew:
+    name: Update Homebrew formula
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout gith repository
+        uses: actions/checkout@v6
+
+      - name: Checkout tap repository
+        uses: actions/checkout@v6
+        with:
+          repository: siwdie/homebrew-gith
+          token: ${{ secrets.HOMEBREW_GITH_TOKEN }}
+          path: homebrew-gith
+
+      - name: Resolve release asset values
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          MACOS_ARM64_BINARY_FILE="gith-v${VERSION}-macos-arm64"
+          LINUX_X64_BINARY_FILE="gith-v${VERSION}-linux-x64"
+
+          MACOS_ARM64_SHA256=$(gh release view "${{ inputs.tag_name }}" \
+            --repo siwdie/gith \
+            --json assets \
+            --jq '.assets[] | select(.name == "'"$MACOS_ARM64_BINARY_FILE"'") | .digest' | sed 's/^sha256://')
+
+          LINUX_X64_SHA256=$(gh release view "${{ inputs.tag_name }}" \
+            --repo siwdie/gith \
+            --json assets \
+            --jq '.assets[] | select(.name == "'"$LINUX_X64_BINARY_FILE"'") | .digest' | sed 's/^sha256://')
+
+          if [ -z "$MACOS_ARM64_SHA256" ]; then
+            echo "Could not resolve SHA256 for ${MACOS_ARM64_BINARY_FILE}"
+            exit 1
+          fi
+
+          if [ -z "$LINUX_X64_SHA256" ]; then
+            echo "Could not resolve SHA256 for ${LINUX_X64_BINARY_FILE}"
+            exit 1
+          fi
+
+          echo "MACOS_ARM64_BINARY_FILE=$MACOS_ARM64_BINARY_FILE" >> "$GITHUB_ENV"
+          echo "MACOS_ARM64_SHA256=$MACOS_ARM64_SHA256" >> "$GITHUB_ENV"
+          echo "LINUX_X64_BINARY_FILE=$LINUX_X64_BINARY_FILE" >> "$GITHUB_ENV"
+          echo "LINUX_X64_SHA256=$LINUX_X64_SHA256" >> "$GITHUB_ENV"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate formula
+        run: |
+          node scripts/brew.mjs \
+            --macosArm64BinaryFile="${MACOS_ARM64_BINARY_FILE}" \
+            --macosArm64Sha256="${MACOS_ARM64_SHA256}" \
+            --linuxX64BinaryFile="${LINUX_X64_BINARY_FILE}" \
+            --linuxX64Sha256="${LINUX_X64_SHA256}" \
+            --output="./homebrew-gith/Formula/gith.rb"
+
+      - name: Commit and push formula update
+        run: |
+          cd homebrew-gith
+          git config user.name "siwdie-gith-bot"
+          git config user.email "siwdie-gith-bot@users.noreply.github.com"
+          git add Formula/gith.rb
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+
+          VERSION=$(node -p "require('../package.json').version")
+          git commit -m "release: Version v${VERSION}"
+          git push
