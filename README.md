@@ -20,6 +20,7 @@
 
 <p align="center">
   <a href="#quick-start">Quick start</a> ·
+  <a href="#standalone-installation">Install</a> ·
   <a href="#what-it-does">What it does</a> ·
   <a href="#commands">Commands</a> ·
   <a href="#configuration">Configuration</a> ·
@@ -31,7 +32,7 @@
 Install as a dev dependency:
 
 ```bash
-npm install -D gith
+npm install -D @siwdie/gith
 ```
 
 Initialize the project config:
@@ -55,12 +56,48 @@ If Homebrew does not resolve the short name on your system, use:
 brew install siwdie/gith/gith
 ```
 
+
+#### macOS & Linux
+
+
+Install the latest standalone binary with the install script:
+
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/siwdie/gith/main/scripts/install.sh | sh
+```
+
+Install to a custom directory:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/siwdie/gith/main/scripts/install.sh | sh -s -- --bin-dir ~/.local/bin
+```
+
+#### Linux
+
+If you prefer a manual install, download the latest Linux binary from the [Releases](https://github.com/siwdie/gith/releases) page, make it executable, and move it to a directory in your `PATH`:
+
+```bash
+chmod +x gith-vX.Y.Z-linux-x64
+mv gith-vX.Y.Z-linux-x64 ~/.local/bin/gith
+```
+
+#### Windows
+
+Download the latest Windows binary from the [Releases](https://github.com/siwdie/gith/releases) page and place `gith-vX.Y.Z-win-x64.exe` in a directory that is part of your `Path`, for example:
+
+
+```powershell
+mkdir "$env:USERPROFILE\AppData\Local\Programs\gith" -Force
+move .\gith-vX.Y.Z-win-x64.exe "$env:USERPROFILE\AppData\Local\Programs\gith\gith.exe"
+```
+
 #### Supported Homebrew targets
 
 Homebrew installation is currently supported for:
 
 - macOS arm64
-- Linux x86_64
+- Linux x64
 
 ## What it does
 
@@ -113,7 +150,7 @@ gith init --force
 | Field | Type | Description |
 |---|---|---|
 | `defaultBranch` | `string` | Default base branch for new branches. |
-| `monorepo.type` | `"pnpm" \| "yarn"` | Package manager or build tool used to manage the monorepo workspaces. |
+| `monorepo.type` | `"pnpm" \| "yarn" \| "gradle" \| "maven" \| "cargo"` | Package manager or build tool used to manage the monorepo workspaces. |
 | `branchTypes` | `Array<{ value, label?, hint? }>` | Available branch types for the branch creation command. |
 | `commitTypes` | `Array<{ value, label?, hint? }>` | Available commit types for the commit command. |
 | `scope` | `object \| undefined` | Scope prompt configuration for non-monorepo projects. When omitted, scope is disabled. |
