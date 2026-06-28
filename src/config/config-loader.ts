@@ -55,6 +55,7 @@ function mergeConfig (config: GithConfigPartial): ResultType<GithConfig> {
     branchTypes: config.branchTypes ?? DEFAULT_GITH_CONFIG.branchTypes,
     commitTypes: config.commitTypes ?? DEFAULT_GITH_CONFIG.commitTypes,
     scope: config.scope,
+    release: config.release,
     commit: {
       header: {
         minLength,

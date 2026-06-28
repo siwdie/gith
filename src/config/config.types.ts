@@ -50,6 +50,11 @@ export const githConfigSchema = z.object({
     header: githCommitHeaderSchema,
     body: githCommitBodySchema.optional(),
   }),
+  release: z.object({
+    hooks: z.object({
+      beforeCommit: zStringOptional,
+    }).optional(),
+  }).optional()
 })
 
 export const githConfigPartialSchema = githConfigSchema.extend({

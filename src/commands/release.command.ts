@@ -8,10 +8,12 @@ import {
 } from '@clack/prompts'
 import { Command } from 'commander'
 
+import type { SpinnerResult } from '@clack/prompts'
 import type { GithConfig } from '~/config/config.types.js'
 
 import { getConfigOrCancel } from '~/commands/_helper/get-config-or-cancel.js'
 import { buildCommitHeader } from '~/commands/_helper/prompt-commit.js'
+import { runReleaseBeforeCommitHook } from '~/commands/_helper/release-hooks.js'
 import { cancelCommand } from '~/utils/cancel-command.js'
 import {
   commitWithMessage,
@@ -36,18 +38,7 @@ export function createBranchReleaseCommand (): Command {
       if (branchName.data !== config.defaultBranch)
         cancelCommand(`You must be in ${config.defaultBranch} branch to release a new version.`)
 
-
       intro('Create release')
-
-      const stagedResult = await hasStagedChanges()
-
-      if (stagedResult.error) {
-        cancelCommand(stagedResult.error.message)
-      }
-
-      if (!stagedResult.data)
-        cancelCommand('No staged changes found. Stage files first or run the command with --all.')
-
 
       const scope = await getScope(config)
 
@@ -62,16 +53,27 @@ export function createBranchReleaseCommand (): Command {
 
       if (isCancel(version)) cancelCommand('Operation cancelled.')
 
-      const spinnerService = spinner()
-      spinnerService.start('Creating release commit...')
-
       const tag = scope ? `${scope}-v${version}` : `v${version}`
+
+      const spinnerService = spinner()
+      spinnerService.start('Preparing release...')
+
+      await executeHooks(config, version, tag, scope, spinnerService)
+
+
+      spinnerService.message('Checking staged changes...')
+
+      await ensureStagedChangesOrCancel()
+
+
+      spinnerService.message('Creating release commit...')
 
       const commitResult = await commitWithMessage(
         buildCommitHeader('release', scope, `Version ${version}`),
       )
 
       if (commitResult.error !== null) {
+        spinnerService.clear()
         cancelCommand(commitResult.error.message)
       }
 
@@ -102,4 +104,52 @@ async function getScope (config: GithConfig): Promise<string> {
   }
 
   return scopeList[0] === 'root' ? '' : scopeList[0]!
+}
+
+function hasReleaseHooks (config: GithConfig): boolean {
+  return Object.values(config.release?.hooks ?? {}).some((hook) => Boolean(hook?.trim()))
+}
+
+async function ensureStagedChangesOrCancel (): Promise<void> {
+  const stagedResult = await hasStagedChanges()
+
+  if (stagedResult.error) {
+    cancelCommand(stagedResult.error.message)
+  }
+
+  if (!stagedResult.data) {
+    cancelCommand('No staged changes found. Stage files first or configure release hooks to prepare them automatically.')
+  }
+}
+
+async function executeHooks (
+  config: GithConfig,
+  version: string,
+  tag: string,
+  scope: string,
+  spinnerService: SpinnerResult
+): Promise<void> {
+  if (!hasReleaseHooks(config)) {
+    await ensureStagedChangesOrCancel()
+    return
+  }
+
+  const hooks = config.release?.hooks
+
+  if (hooks?.beforeCommit?.trim()) {
+    spinnerService.stop('Running release hooks...')
+
+    const hookResult = await runReleaseBeforeCommitHook({
+      config,
+      version,
+      tag,
+      scope,
+    })
+
+    if (hookResult.error) {
+      cancelCommand(hookResult.error.message)
+    }
+
+    spinnerService.start('Preparing release...')
+  }
 }
