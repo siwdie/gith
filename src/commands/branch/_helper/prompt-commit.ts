@@ -87,12 +87,26 @@ export async function promptForCommitMessage (
     cancelCommand('Commit cancelled.', 0)
   }
 
+  const isBreakingChange = await confirm({
+    message: 'Is this a breaking change?',
+    initialValue: false,
+  })
+
+  if (isCancel(isBreakingChange)) {
+    cancelCommand('Commit cancelled.', 0)
+  }
+
   const header = buildCommitHeader(type, scope, description)
   const normalizedBody = body?.trim()
+  const finalBody = isBreakingChange
+    ? normalizedBody
+      ? `${normalizedBody}\n\nBREAKING CHANGE`
+      : 'BREAKING CHANGE'
+    : normalizedBody
 
   const shouldCommit = await confirm({
-    message: normalizedBody
-      ? `${confirmationMessage}\n\n${header}\n\n${normalizedBody}`
+    message: finalBody
+      ? `${confirmationMessage}\n\n${header}\n\n${finalBody}`
       : `${confirmationMessage}\n\n${header}`,
     initialValue: true,
   })
@@ -103,7 +117,7 @@ export async function promptForCommitMessage (
 
   return {
     header,
-    body: normalizedBody,
+    body: finalBody,
   }
 }
 
