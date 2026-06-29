@@ -145,7 +145,11 @@
           "properties": {
             "beforeCommit": {
               "type": "string",
-              "description": "Shell command to run before creating the release commit. Supports placeholders like {{version}}, {{tag}}, {{scope}}, and {{branch}}"
+              "description": "Shell command to run before creating the release commit. Supports placeholders like {{version}}, {{tag}}, and {{scope}}"
+            },
+            "afterCommit": {
+              "type": "string",
+              "description": "Shell command to run after creating the release commit. Supports placeholders like {{version}}, {{tag}}, and {{scope}}"
             }
           }
         }
