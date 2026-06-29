@@ -3,7 +3,7 @@ import { Command } from 'commander'
 
 
 import { getConfigOrCancel } from '~/commands/_helper/get-config-or-cancel.js'
-import { promptForCommitMessage } from '~/commands/_helper/prompt-commit.js'
+import { promptForCommitMessage } from '~/commands/branch/_helper/prompt-commit.js'
 import { cancelCommand } from '~/utils/cancel-command.js'
 import { commitWithMessage, hasStagedChanges, stageAllTrackedFiles } from '~utils/git.js'
 

@@ -11,8 +11,8 @@ import { Command } from 'commander'
 import type { GithConfig } from '~/config/config.types.js'
 
 import { getConfigOrCancel } from '~/commands/_helper/get-config-or-cancel.js'
-import { buildCommitHeader } from '~/commands/_helper/prompt-commit.js'
-import { hasReleaseHook, runReleaseAfterCommitHook, runReleaseBeforeCommitHook } from '~/commands/_helper/release-hooks.js'
+import { buildCommitHeader } from '~/commands/branch/_helper/prompt-commit.js'
+import { hasReleaseHook, runReleaseAfterCommitHook, runReleaseBeforeCommitHook } from '~/commands/branch/_helper/release-hooks.js'
 import { cancelCommand } from '~/utils/cancel-command.js'
 import {
   commitWithMessage,

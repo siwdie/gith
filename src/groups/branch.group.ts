@@ -1,12 +1,12 @@
 import { Command } from 'commander'
 
 
-import { createBranchCommitCommand } from '~/commands/commit.command.js'
-import { createBranchCreateCommand } from '~/commands/create.command.js'
-import { createBranchReleaseCommand } from '~/commands/release.command.js'
-import { createBranchRenameCommand } from '~/commands/rename.command.js'
-import { createBranchSquashCommand } from '~/commands/squash.command.js'
-import { createBranchUpdateCommand } from '~/commands/update.command.js'
+import { createBranchCommitCommand } from '~/commands/branch/commit.command.js'
+import { createBranchCreateCommand } from '~/commands/branch/create.command.js'
+import { createBranchReleaseCommand } from '~/commands/branch/release.command.js'
+import { createBranchRenameCommand } from '~/commands/branch/rename.command.js'
+import { createBranchSquashCommand } from '~/commands/branch/squash.command.js'
+import { createBranchUpdateCommand } from '~/commands/branch/update.command.js'
 
 
 

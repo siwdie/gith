@@ -4,7 +4,7 @@ import { Command } from 'commander'
 import type { GithConfig } from '~/config/config.types.js'
 
 import { getConfigOrCancel } from '~/commands/_helper/get-config-or-cancel.js'
-import { promptForBranchName } from '~/commands/_helper/prompt-branch-name.js'
+import { promptForBranchName } from '~/commands/branch/_helper/prompt-branch-name.js'
 import { cancelCommand } from '~/utils/cancel-command.js'
 import { createBranch, getCurrentBranchName } from '~utils/git.js'
 
