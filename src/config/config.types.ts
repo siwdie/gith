@@ -53,6 +53,7 @@ export const githConfigSchema = z.object({
   release: z.object({
     hooks: z.object({
       beforeCommit: zStringOptional,
+      afterCommit: zStringOptional,
     }).optional(),
   }).optional()
 })

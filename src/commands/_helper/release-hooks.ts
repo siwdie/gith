@@ -1,60 +1,42 @@
-import { execaCommand } from 'execa'
-
 import type { GithConfig } from '~/config/config.types.js'
-import type { ResultType } from '~/utils/result.js'
 
-import { createDataResult, createErrorResult } from '~/utils/result.js'
+import { cancelCommand } from '~/utils/cancel-command.js'
+import { runHook } from '~/utils/hooks.js'
 
 
 
 type HookParams = {
-  config: GithConfig
   version: string
   tag: string
   scope: string
 }
 
-export async function runReleaseBeforeCommitHook (params: HookParams): Promise<ResultType<boolean>> {
-  const hook = params.config.release?.hooks?.beforeCommit?.trim()
+export async function runReleaseBeforeCommitHook (
+  config: GithConfig,
+  params: HookParams,
+): Promise<void> {
+  const hook = config.release?.hooks?.beforeCommit?.trim()
 
-  if (!hook) return createDataResult(false)
+  const hookResult = await runHook(hook, 'BeforeCommit', params)
 
-  const command = interpolateTemplate(hook, {
-    version: params.version,
-    tag: params.tag,
-    scope: params.scope,
-  })
-
-  try {
-    await execaCommand(command, {
-      shell: true,
-      stdio: 'inherit',
-      preferLocal: true,
-    })
-
-    return createDataResult(true)
-  } catch (error) {
-    return createErrorResult(error instanceof Error ? error : new Error('Release hook failed.'))
+  if (hookResult.error) {
+    cancelCommand(hookResult.error.message)
   }
 }
 
+export async function runReleaseAfterCommitHook (
+  config: GithConfig,
+  params: HookParams,
+): Promise<void> {
+  const hook = config.release?.hooks?.afterCommit?.trim()
 
-function escapeRegExp (value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const hookResult = await runHook(hook, 'AfterCommit', params)
+
+  if (hookResult.error) {
+    cancelCommand(hookResult.error.message)
+  }
 }
 
-function interpolateTemplate (
-  template: string,
-  values: Record<string, string>,
-): string {
-  let result = template
-
-  for (const [key, value] of Object.entries(values)) {
-    result = result.replace(
-      new RegExp(`\\{\\{\\s*${escapeRegExp(key)}\\s*\\}\\}`, 'g'),
-      value,
-    )
-  }
-
-  return result
+export function hasReleaseHook (config: GithConfig, type: keyof NonNullable<NonNullable<GithConfig['release']>['hooks']>): boolean {
+  return Object.entries(config.release?.hooks ?? {}).some(([key, value]) => key === type && Boolean(value.trim()))
 }

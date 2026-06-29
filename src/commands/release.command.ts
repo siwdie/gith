@@ -8,12 +8,11 @@ import {
 } from '@clack/prompts'
 import { Command } from 'commander'
 
-import type { SpinnerResult } from '@clack/prompts'
 import type { GithConfig } from '~/config/config.types.js'
 
 import { getConfigOrCancel } from '~/commands/_helper/get-config-or-cancel.js'
 import { buildCommitHeader } from '~/commands/_helper/prompt-commit.js'
-import { runReleaseBeforeCommitHook } from '~/commands/_helper/release-hooks.js'
+import { hasReleaseHook, runReleaseAfterCommitHook, runReleaseBeforeCommitHook } from '~/commands/_helper/release-hooks.js'
 import { cancelCommand } from '~/utils/cancel-command.js'
 import {
   commitWithMessage,
@@ -58,7 +57,14 @@ export function createBranchReleaseCommand (): Command {
       const spinnerService = spinner()
       spinnerService.start('Preparing release...')
 
-      await executeHooks(config, version, tag, scope, spinnerService)
+
+      if (!hasReleaseHook(config, 'beforeCommit')) {
+        await ensureStagedChangesOrCancel()
+      } else {
+        spinnerService.message('Running release hook before commit...')
+        await runReleaseBeforeCommitHook(config, { version, tag, scope })
+        spinnerService.message('Preparing release...')
+      }
 
 
       spinnerService.message('Checking staged changes...')
@@ -81,11 +87,15 @@ export function createBranchReleaseCommand (): Command {
 
       const tagResult = await createTag(tag, `Release ${tag}`)
 
-      spinnerService.clear()
+      if (tagResult.error) cancelCommand(tagResult.error.message)
 
-      if (tagResult.error) {
-        cancelCommand(tagResult.error.message)
+
+      if (hasReleaseHook(config, 'afterCommit')) {
+        spinnerService.message('Running release hook before commit...')
+        runReleaseAfterCommitHook(config, { version, tag, scope })
       }
+
+      spinnerService.clear()
 
       outro(`Release ${tag} created.\nPush with: git push && git push origin ${tag}`)
     })
@@ -106,10 +116,6 @@ async function getScope (config: GithConfig): Promise<string> {
   return scopeList[0] === 'root' ? '' : scopeList[0]!
 }
 
-function hasReleaseHooks (config: GithConfig): boolean {
-  return Object.values(config.release?.hooks ?? {}).some((hook) => Boolean(hook?.trim()))
-}
-
 async function ensureStagedChangesOrCancel (): Promise<void> {
   const stagedResult = await hasStagedChanges()
 
@@ -119,37 +125,5 @@ async function ensureStagedChangesOrCancel (): Promise<void> {
 
   if (!stagedResult.data) {
     cancelCommand('No staged changes found. Stage files first or configure release hooks to prepare them automatically.')
-  }
-}
-
-async function executeHooks (
-  config: GithConfig,
-  version: string,
-  tag: string,
-  scope: string,
-  spinnerService: SpinnerResult
-): Promise<void> {
-  if (!hasReleaseHooks(config)) {
-    await ensureStagedChangesOrCancel()
-    return
-  }
-
-  const hooks = config.release?.hooks
-
-  if (hooks?.beforeCommit?.trim()) {
-    spinnerService.stop('Running release hooks...')
-
-    const hookResult = await runReleaseBeforeCommitHook({
-      config,
-      version,
-      tag,
-      scope,
-    })
-
-    if (hookResult.error) {
-      cancelCommand(hookResult.error.message)
-    }
-
-    spinnerService.start('Preparing release...')
   }
 }
