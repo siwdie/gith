@@ -2,7 +2,7 @@ import { execa } from 'execa'
 import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 
-import type { GithMonorepoType } from '~/config/config.types.js'
+import type { MonorepoType } from '~/config/config.types.js'
 import type { Maybe } from '~/types/common.js'
 
 
@@ -12,7 +12,7 @@ export type WorkspacePackage = {
   location: string
 }
 
-export const repoTypes: Record<GithMonorepoType, (cwd: string) => Promise<Maybe<Array<WorkspacePackage>>>> = {
+export const repoTypes: Record<MonorepoType, (cwd: string) => Promise<Maybe<Array<WorkspacePackage>>>> = {
   pnpm: getPnpmPackages,
   yarn: getYarnPackages,
   cargo: getCargoPackages,
@@ -20,7 +20,7 @@ export const repoTypes: Record<GithMonorepoType, (cwd: string) => Promise<Maybe<
   gradle: getGradlePackages,
 }
 
-export async function getWorkspacePackages (type?: GithMonorepoType, cwd?: string): Promise<Array<WorkspacePackage>> {
+export async function getWorkspacePackages (type?: MonorepoType, cwd?: string): Promise<Array<WorkspacePackage>> {
   if (!type) return []
 
   const result = await repoTypes[type](cwd ?? process.cwd())

@@ -50,4 +50,25 @@ export const DEFAULT_GITH_CONFIG: GithConfig = {
       hint: 'Project config and maintenance changes',
     },
   ],
+  changelog: {
+    file: 'CHANGELOG.md',
+    tagPattern: 'v*',
+    breakingTitle: 'Breaking changes',
+    emptyMessage: 'No user-facing changes.',
+    authors: false,
+    sections: [
+      {
+        types: ['feat'],
+        title: 'Added'
+      },
+      {
+        types: ['refactor'],
+        title: 'Changed'
+      },
+      {
+        types: ['fix'],
+        title: 'Fixed'
+      }
+    ],
+  }
 }

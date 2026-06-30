@@ -4,6 +4,7 @@ import pkg from '../package.json' with { type: 'json' }
 
 import { createInitCommand } from '~/commands/init.command.js'
 import { createBranchCommandGroup } from '~/groups/branch.group.js'
+import { createChangelogCommandGroup } from '~/groups/changelog.group.js'
 
 
 
@@ -15,6 +16,7 @@ async function main (): Promise<void> {
     .description('Git workflow helper cli')
     .version(pkg.version)
   cli.addCommand(createBranchCommandGroup())
+  cli.addCommand(createChangelogCommandGroup())
   cli.addCommand(createInitCommand())
 
   await cli.parseAsync()
