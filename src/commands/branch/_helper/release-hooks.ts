@@ -1,4 +1,4 @@
-import type { GithConfig } from '~/config/config.types.js'
+import type { GithConfig, Release } from '~/config/config.types.js'
 
 import { cancelCommand } from '~/utils/cancel-command.js'
 import { runHook } from '~/utils/hooks.js'
@@ -37,6 +37,6 @@ export async function runReleaseAfterCommitHook (
   }
 }
 
-export function hasReleaseHook (config: GithConfig, type: keyof NonNullable<NonNullable<GithConfig['release']>['hooks']>): boolean {
+export function hasReleaseHook (config: GithConfig, type: keyof NonNullable<Release['hooks']>): boolean {
   return Object.entries(config.release?.hooks ?? {}).some(([key, value]) => key === type && Boolean(value.trim()))
 }

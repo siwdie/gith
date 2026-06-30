@@ -63,6 +63,14 @@ function mergeConfig (config: GithConfigPartial): ResultType<GithConfig> {
       },
       body: config.commit?.body
     },
+    changelog: {
+      file: config.changelog?.file ?? DEFAULT_GITH_CONFIG.changelog.file,
+      authors: config.changelog?.authors ?? DEFAULT_GITH_CONFIG.changelog.authors,
+      breakingTitle: config.changelog?.breakingTitle ?? DEFAULT_GITH_CONFIG.changelog.breakingTitle,
+      emptyMessage: config.changelog?.emptyMessage ?? DEFAULT_GITH_CONFIG.changelog.emptyMessage,
+      tagPattern: config.changelog?.tagPattern ?? DEFAULT_GITH_CONFIG.changelog.tagPattern,
+      sections: config.changelog?.sections ?? DEFAULT_GITH_CONFIG.changelog.sections,
+    }
   } satisfies GithConfig
 
 

@@ -201,3 +201,71 @@ export async function getStagedFilesScopeList (
 
   return Array.from(matchedPackages)
 }
+
+
+type GitTagListOptions = RunGitOptions & {
+  pattern?: string
+  sort?: 'version:refname' | '-version:refname' | 'taggerdate' | '-taggerdate'
+}
+
+export async function getTags (
+  options?: GitTagListOptions,
+): Promise<ResultType<Array<string>>> {
+  const result = await runGit([
+    'tag',
+    '--list',
+    options?.pattern ?? '*',
+    ...(options?.sort ? [`--sort=${options.sort}`] : []),
+  ], options)
+
+  if (result.error !== null) {
+    return createErrorResult(result.error)
+  }
+
+  const tags = result.data
+    .split('\n')
+    .map(line => line.trim())
+    .filter(Boolean)
+
+  return createDataResult(tags)
+}
+
+
+export type GitCommit = {
+  author: string
+  message: string
+}
+
+export async function getCommitsBetween (
+  fromRef: string,
+  toRef: string,
+  options?: RunGitOptions,
+): Promise<ResultType<Array<GitCommit>>> {
+  const result = await runGit([
+    'log',
+    `${fromRef}..${toRef}`,
+    '--no-merges',
+    '--pretty=format:%aN%n%B%n==END==',
+  ], options)
+
+  if (result.error !== null) {
+    return createErrorResult(result.error)
+  }
+
+  const raw = result.data
+  const commits = raw
+    .split('\n==END==\n')
+    .map(entry => entry.replace(/\r/g, '').trim())
+    .filter(Boolean)
+    .map((entry) => {
+      const [author = '', ...messageLines] = entry.split('\n')
+
+      return {
+        author: author.trim(),
+        message: messageLines.join('\n').trim(),
+      }
+    })
+    .filter(commit => commit.message)
+
+  return createDataResult(commits)
+}

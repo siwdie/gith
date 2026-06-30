@@ -7,14 +7,13 @@ import { createErrorResult, createDataResult } from '~/utils/result.js'
 
 
 
-export const zString = z.string().trim().min(1)
+export const zStringRequired = z.string().trim().min(1)
 export const zStringOptional = z.string().trim().transform(v => v.length > 0 ? v : undefined).optional()
 
 export const zNumberPositive = z.number().min(0)
 export const zNumberOptional = z.number().optional()
 export const zNumberPositiveOptional = zNumberPositive.optional()
 
-export const zBoolean = z.boolean().default(false)
 export const zBooleanOptional = z.boolean().optional()
 export const zBooleanOrFalse = z.boolean().nullish().transform(v => v ?? false)
 
