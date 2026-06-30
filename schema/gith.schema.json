@@ -167,6 +167,70 @@
           "enum": ["pnpm", "yarn", "cargo", "maven", "gradle"]
         }
       }
+    },
+    "changelog": {
+      "type": "object",
+      "description": "Configuration for changelog generation commands",
+      "additionalProperties": false,
+      "properties": {
+        "file": {
+          "type": "string",
+          "description": "Path to the changelog file",
+          "default": "CHANGELOG.md"
+        },
+        "tagPattern": {
+          "type": "string",
+          "description": "Git tag pattern used to detect version tags",
+          "default": "v*"
+        },
+        "breakingTitle": {
+          "type": "string",
+          "description": "Section title used for breaking changes",
+          "default": "Breaking"
+        },
+        "emptyMessage": {
+          "type": "string",
+          "description": "Message used when no user-facing changes are found",
+          "default": "No user-facing changes."
+        },
+        "sections": {
+          "type": "array",
+          "description": "Commit type groups rendered as changelog sections",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["types", "title"],
+            "properties": {
+              "types": {
+                "type": "array",
+                "description": "Conventional commit types included in the section",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 1
+              },
+              "title": {
+                "type": "string",
+                "description": "Title shown in the changelog for the section"
+              }
+            }
+          },
+          "default": [
+            {
+              "types": ["feat"],
+              "title": "Added"
+            },
+            {
+              "types": ["refactor"],
+              "title": "Changed"
+            },
+            {
+              "types": ["fix"],
+              "title": "Fixed"
+            }
+          ]
+        }
+      }
     }
   },
   "definitions": {
