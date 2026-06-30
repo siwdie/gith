@@ -167,6 +167,13 @@ gith init --force
 | `release` | `object \| undefined` | Configuration for the release flow. |
 | `release.hooks` | `object \| undefined` | Shell commands executed during the release flow. |
 | `release.hooks.beforeCommit` | `string \| undefined` | Shell command to run before creating the release commit. Supports `{{version}}`, `{{tag}}`, `{{scope}}`, and `{{branch}}`. |
+| `changelog.file` | `string` | Path to the changelog file. |
+| `changelog.tagPattern` | `string` | Git tag pattern used to detect version tags. |
+| `changelog.breakingTitle` | `string` | Section title used for breaking changes. |
+| `changelog.emptyMessage` | `string` | Message used when no user-facing changes are found. |
+| `changelog.sections` | `Array<{ types, title }>` | Commit type groups rendered as changelog sections. |
+| `changelog.sections[].types` | `Array<string>` | Conventional commit types included in the section. |
+| `changelog.sections[].title` | `string` | Title shown in the changelog for the section. |
 
 ### Release hooks
 
